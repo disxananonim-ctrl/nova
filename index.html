@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0f172a" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Nova AI" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https: http://localhost:* http://127.0.0.1:*; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'" />
+<title>Nova AI Pro — Offline & API AI</title>
+<style>
+:root{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;--bg:#0f172a;--panel:#1e293b;--accent:#6366f1;--accent2:#8b5cf6;--text:#e2e8f0;--muted:#94a3b8;--line:#334155}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{padding:12px 16px;background:rgba(30,41,59,.8);backdrop-filter:blur(8px);display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:18px;flex:none}
+header h1{font-size:18px}
+.header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.settings-btn{padding:9px 11px;font-size:13px;white-space:nowrap}
+.status{margin-left:0}
+.dialog-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.dialog-backdrop.open{display:flex}
+.dialog{width:min(560px,100%);max-height:90dvh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 20px 60px #0008}
+.dialog h2{font-size:19px;margin-bottom:8px}
+.dialog p{font-size:13px;line-height:1.5;color:var(--muted);margin:8px 0 14px}
+.dialog label{display:block;font-size:13px;margin:12px 0 5px;color:var(--text)}
+.dialog input,.dialog select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#0f172a;color:var(--text);font-size:16px}
+.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.dialog-actions button{padding:10px 14px}
+.secondary{background:#334155}
+.ai-pill{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted)}
+@media(max-width:520px){header{padding:10px;gap:8px}.logo{width:34px;height:34px}.status{display:none}.settings-btn{padding:8px;font-size:12px}.sub{font-size:11px}}
+.sub{font-size:12px;color:var(--muted)}
+.status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e}
+main{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;max-width:820px;width:100%;margin:0 auto}
+.msg{max-width:82%;padding:12px 16px;border-radius:16px;line-height:1.55;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;animation:pop .2s ease}
+@keyframes pop{from{transform:translateY(6px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.msg{animation:none}}
+.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));border-bottom-right-radius:4px}
+.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.typing{color:var(--muted);font-style:italic}
+.imgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.imgs img{width:84px;height:84px;object-fit:cover;border-radius:10px}
+.chips{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;max-width:820px;width:100%;margin:0 auto;padding:0 16px 8px}
+.chip{flex:none;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.4);color:#c7d2fe;border-radius:20px;padding:6px 14px;font-size:13px;cursor:pointer}
+.chip:hover{background:rgba(99,102,241,.35)}
+#tray{display:none;gap:8px;overflow-x:auto;max-width:820px;width:100%;margin:0 auto;padding:0 16px 8px}
+.th{position:relative;flex:none}
+.th img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.th .rm{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#ef4444;color:#fff;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
+form{display:flex;gap:8px;max-width:820px;width:100%;margin:0 auto;padding:8px 16px 8px}
+input[type=text]{flex:1;min-width:0;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:16px;outline:none}
+input[type=text]:focus{border-color:var(--accent)}
+button{border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:600;font-size:15px;cursor:pointer}
+button:active{transform:scale(.97)}
+button:focus-visible,.chip:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.send{padding:0 18px}
+.ic{width:46px;background:var(--panel);border:1px solid var(--line);font-size:18px;flex:none}
+.ic.on{background:#dc2626;border-color:#dc2626;animation:pulse 1.2s infinite}
+.ic.act{border-color:var(--accent);background:rgba(99,102,241,.3)}
+@keyframes pulse{50%{opacity:.6}}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:0 16px calc(10px + env(safe-area-inset-bottom))}
+header{padding-top:calc(12px + env(safe-area-inset-top))}
+
+.dialog .check{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin:10px 0 0}
+.dialog .check input{width:auto}
+.dialog .row{display:flex;gap:8px}
+.dialog .row input{flex:1;min-width:0;width:auto}
+.dialog .row button{padding:0 12px;font-size:13px;flex:none}
+.dialog-actions{flex-wrap:wrap}
+button:disabled{opacity:.6;cursor:wait}
+#apiTestStatus.ok{color:#4ade80}
+#apiTestStatus.err{color:#f87171}
+
+.codebox{margin:8px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b1220}
+.codebar{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;font-size:11px;color:var(--muted);background:#111c33}
+.codebar .copy{padding:3px 8px;font-size:11px;border-radius:8px;background:#334155}
+.codebox pre{margin:0;padding:10px;overflow-x:auto;white-space:pre;font:13px/1.5 ui-monospace,Consolas,monospace;color:#e2e8f0}
+.msg code{font-family:ui-monospace,Consolas,monospace;background:#0b1220;padding:1px 5px;border-radius:5px;font-size:.92em}
+.codebox code{background:none;padding:0}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">N</div>
+  <div><h1>Nova AI</h1><div class="sub">Asisten offline + koneksi model AI opsional</div></div>
+  <div class="header-actions">
+    <span class="ai-pill" id="modePill">Mode offline</span>
+    <button type="button" class="settings-btn" id="settingsBtn" aria-haspopup="dialog">⚙️ AI Online</button>
+  </div>
+</header>
+<div class="dialog-backdrop" id="settingsBackdrop" role="presentation">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <h2 id="settingsTitle">Koneksi model AI</h2>
+    <p>Mode offline tetap tersedia tanpa internet. Untuk jawaban lebih luas seperti asisten AI modern, hubungkan API model yang kompatibel dengan format OpenAI (Groq, OpenAI, DeepSeek, OpenRouter, Together, atau server sendiri). Perlu internet dan API key.</p>
+    <label for="apiProvider">Penyedia API</label>
+    <select id="apiProvider" aria-label="Penyedia API">
+      <option value="groq">Groq</option>
+      <option value="openai">OpenAI</option>
+      <option value="deepseek">DeepSeek</option>
+      <option value="openrouter">OpenRouter</option>
+      <option value="together">Together AI</option>
+      <option value="custom">Endpoint khusus / server sendiri</option>
+    </select>
+    <label for="apiKey">API key</label>
+    <input id="apiKey" type="password" placeholder="Tempel API key (Groq diawali gsk_)" autocomplete="off" spellcheck="false" autocapitalize="off" />
+    <label class="check"><input type="checkbox" id="rememberKey" /> Ingat API key di perangkat ini (disimpan di localStorage browser)</label>
+    <label for="apiModel">Nama model</label>
+    <div class="row"><input id="apiModel" type="text" list="modelList" placeholder="mis. llama-3.3-70b-versatile" autocomplete="off" spellcheck="false" /><button type="button" class="secondary" id="loadModels">Muat model</button></div>
+    <datalist id="modelList"></datalist>
+    <label for="apiEndpoint">API endpoint (format OpenAI Chat Completions)</label>
+    <input id="apiEndpoint" type="url" placeholder="https://api.groq.com/openai/v1/chat/completions" autocomplete="url" spellcheck="false" />
+    <p><strong>Privasi:</strong> pesan chat dikirim ke penyedia API saat mode online aktif. API key hanya disimpan di browser ini jika kamu mencentang "Ingat API key"; jangan centang di komputer bersama dan jangan membagikan file/ekspor browser yang berisi kunci. Bila file ini dibuka langsung dari penyimpanan (alamat file://), sebagian browser berbagi localStorage antar file HTML lokal, jadi lebih aman membiarkan opsi ini tidak dicentang. Jangan menempel key ke dalam kode HTML. Penggunaan API dapat dikenai biaya.</p>
+    <div class="dialog-actions"><button type="button" class="secondary" id="disableAI">Matikan AI online</button><button type="button" class="secondary" id="closeSettings">Tutup</button><button type="button" class="secondary" id="testAPI">Uji koneksi</button><button type="button" id="saveSettings">Simpan &amp; aktifkan</button></div>
+    <p id="apiTestStatus" role="status" aria-live="polite"></p>
+  </section>
+</div>
+<main id="chat" aria-live="polite"></main>
+<div class="chips" id="chips"></div>
+<div id="tray"></div>
+<form id="form" autocomplete="off">
+  <button type="button" class="ic" id="photoBtn" aria-label="Tambah foto" title="Tambah foto (bisa banyak)">📷</button>
+  <button type="button" class="ic" id="micBtn" aria-label="Bicara" title="Obrolan suara">🎤</button>
+  <input type="text" id="input" maxlength="4000" aria-label="Pesan" placeholder="Tanya apa saja…" />
+  <button type="button" class="ic" id="spkBtn" aria-label="Suara jawaban" title="Bacakan jawaban">🔇</button>
+  <button type="submit" class="send">Kirim</button>
+</form>
+<input type="file" id="file" accept="image/*" multiple hidden />
+<footer>Mode offline berjalan lokal dan terbatas. AI online opsional mengirim pesan ke penyedia API; foto tidak dikirim sebagai data gambar. Mikrofon dapat memakai layanan online.</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const chat = $("chat"), input = $("input"), tray = $("tray");
+
+/* ================= Utilitas ================= */
+const norm = (s) => " " + s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim() + " ";
+const has = (t, ...kw) => kw.some((k) => t.includes(" " + k + " "));
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+
+/* ================= Data pengetahuan ================= */
+const CAP = {};
+"Indonesia:Jakarta,Jepang:Tokyo,Prancis:Paris,Mesir:Kairo,Australia:Canberra,Brasil:Brasilia,Amerika Serikat:Washington D.C.,Inggris:London,Jerman:Berlin,Italia:Roma,Spanyol:Madrid,Portugal:Lisboa,Belanda:Amsterdam,Belgia:Brussel,Swiss:Bern,Austria:Wina,Swedia:Stockholm,Norwegia:Oslo,Denmark:Kopenhagen,Finlandia:Helsinki,Rusia:Moskwa,Ukraina:Kyiv,Polandia:Warsawa,Turki:Ankara,Yunani:Athena,Tiongkok:Beijing,Korea Selatan:Seoul,Korea Utara:Pyongyang,India:New Delhi,Pakistan:Islamabad,Bangladesh:Dhaka,Malaysia:Kuala Lumpur,Singapura:Singapura,Thailand:Bangkok,Vietnam:Hanoi,Filipina:Manila,Brunei:Bandar Seri Begawan,Myanmar:Naypyidaw,Kamboja:Phnom Penh,Laos:Vientiane,Timor Leste:Dili,Arab Saudi:Riyadh,Iran:Teheran,Irak:Baghdad,Uni Emirat Arab:Abu Dhabi,Qatar:Doha,Afghanistan:Kabul,Nepal:Kathmandu,Mongolia:Ulaanbaatar,Afrika Selatan:Pretoria,Nigeria:Abuja,Kenya:Nairobi,Ethiopia:Addis Ababa,Maroko:Rabat,Aljazair:Aljir,Kanada:Ottawa,Meksiko:Meksiko City,Argentina:Buenos Aires,Chili:Santiago,Peru:Lima,Kolombia:Bogota,Venezuela:Caracas,Kuba:Havana,Selandia Baru:Wellington,Irlandia:Dublin,Republik Ceko:Praha,Hungaria:Budapest,Rumania:Bukares"
+  .split(",").forEach((p) => { const [k, v] = p.split(":"); CAP[k.toLowerCase()] = v; });
+const ALIAS = { china: "tiongkok", cina: "tiongkok", brazil: "brasil", usa: "amerika serikat", amerika: "amerika serikat", "united states": "amerika serikat", uk: "inggris", britania: "inggris", jepun: "jepang", japan: "jepang", france: "prancis", germany: "jerman", mesir: "mesir", "korea": "korea selatan", rumania: "rumania", romania: "rumania", "arab": "arab saudi", "uea": "uni emirat arab", "timor": "timor leste" };
+
+// [kata kunci…, jawaban] — dicocokkan per kata/frasa utuh, skor tertinggi menang
+const FACTS = [
+ [["planet terbesar","jupiter"],"Planet terbesar di tata surya adalah Jupiter — diameternya sekitar 11 kali Bumi. 🪐"],
+ [["jumlah planet","berapa planet","planet di tata surya"],"Ada 8 planet: Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus. Pluto kini digolongkan planet kerdil (sejak 2006)."],
+ [["matahari"],"Matahari adalah bintang di pusat tata surya, berumur ±4,6 miliar tahun. Cahayanya sampai ke Bumi dalam ±8 menit 20 detik. ☀️"],
+ [["jarak bumi bulan","jarak bulan","bulan dari bumi"],"Jarak rata-rata Bumi–Bulan sekitar 384.400 km. 🌙"],
+ [["kecepatan cahaya"],"Kecepatan cahaya di ruang hampa ±299.792 km/detik (≈ 300.000 km/s)."],
+ [["gravitasi"],"Gravitasi Bumi ±9,8 m/s². Gravitasi Bulan hanya sekitar seperenam gravitasi Bumi."],
+ [["umur bumi","usia bumi"],"Bumi berumur sekitar 4,5 miliar tahun."],
+ [["big bang"],"Teori Big Bang: alam semesta bermula dari keadaan sangat panas dan padat ±13,8 miliar tahun lalu, lalu terus mengembang."],
+ [["dinosaurus","dinosaurus punah"],"Dinosaurus non-unggas punah sekitar 66 juta tahun lalu, kemungkinan besar akibat tumbukan asteroid besar (Chicxulub) dan perubahan iklim."],
+ [["fotosintesis"],"Fotosintesis: tumbuhan memakai cahaya matahari, air, dan CO₂ untuk membuat glukosa dan melepaskan oksigen. 🌱"],
+ [["rumus air","h2o"],"Rumus kimia air adalah H₂O: dua atom hidrogen + satu atom oksigen. Mendidih 100°C dan membeku 0°C pada tekanan 1 atm."],
+ [["suhu tubuh","suhu normal"],"Suhu tubuh manusia normal sekitar 36,1–37,2°C."],
+ [["nol mutlak","absolute zero"],"Nol mutlak = 0 Kelvin = −273,15°C, suhu terendah secara teori."],
+ [["gunung tertinggi","everest"],"Gunung tertinggi di dunia (dari permukaan laut) adalah Everest, ±8.849 m, di perbatasan Nepal–Tibet. ⛰️"],
+ [["sungai terpanjang indonesia","kapuas"],"Sungai terpanjang di Indonesia adalah Sungai Kapuas di Kalimantan Barat (±1.143 km)."],
+ [["gunung tertinggi indonesia","puncak tertinggi indonesia","puncak jaya","carstensz"],"Puncak tertinggi Indonesia adalah Puncak Jaya (Carstensz Pyramid) di Papua, ±4.884 m."],
+ [["sungai terpanjang","nil","amazon"],"Sungai terpanjang biasanya disebut Nil (±6.650 km); Amazon memiliki debit air terbesar di dunia."],
+ [["samudra terluas","samudra pasifik","samudra terbesar"],"Samudra terluas dan terdalam adalah Samudra Pasifik, menutupi hampir sepertiga permukaan Bumi. 🌊"],
+ [["gurun terbesar","sahara"],"Gurun panas terbesar adalah Sahara (±9 juta km²). Secara keseluruhan gurun terbesar adalah Antartika."],
+ [["jumlah benua","berapa benua","benua"],"Ada 7 benua: Asia, Afrika, Amerika Utara, Amerika Selatan, Antartika, Eropa, Australia/Oseania."],
+ [["jumlah samudra","berapa samudra"],"Ada 5 samudra: Pasifik, Atlantik, Hindia, Selatan, dan Arktik."],
+ [["negara terluas","negara terbesar"],"Negara terluas di dunia adalah Rusia (±17,1 juta km²)."],
+ [["negara terkecil","vatikan"],"Negara terkecil di dunia adalah Vatikan (±0,44 km²)."],
+ [["populasi dunia","penduduk dunia","jumlah manusia"],"Populasi dunia sekitar 8 miliar jiwa (lewat 8 miliar sejak akhir 2022)."],
+ [["bahasa terbanyak","bahasa paling banyak"],"Bahasa dengan penutur asli terbanyak adalah Mandarin; dengan total penutur terbanyak adalah Inggris."],
+ [["hewan tercepat","cheetah"],"Hewan darat tercepat adalah cheetah (±100–110 km/jam). Hewan tercepat secara keseluruhan: elang peregrine saat menukik (>300 km/jam). 🐆"],
+ [["hewan terbesar","paus biru"],"Hewan terbesar sepanjang masa yang diketahui adalah paus biru (hingga ±30 m dan 150+ ton). 🐋"],
+ [["jumlah tulang","tulang manusia"],"Orang dewasa punya 206 tulang; bayi lahir dengan sekitar 270–300 yang sebagian menyatu seiring tumbuh."],
+ [["organ terbesar","kulit manusia"],"Organ terbesar tubuh manusia adalah kulit."],
+ [["jantung"],"Jantung manusia berdetak ±60–100 kali/menit saat istirahat dan memompa darah ke seluruh tubuh. ❤️"],
+ [["dna"],"DNA adalah molekul pembawa informasi genetik, berbentuk heliks ganda, tersusun dari 4 basa: A, T, G, C."],
+ [["atom"],"Atom adalah satuan dasar materi: inti (proton + neutron) dikelilingi elektron."],
+ [["tabel periodik","unsur kimia"],"Tabel periodik memuat 118 unsur yang diketahui. Contoh: H (hidrogen), O (oksigen), Fe (besi), Au (emas), Ag (perak)."],
+ [["nilai pi","pi"],"Pi (π) ≈ 3,14159265 — perbandingan keliling lingkaran terhadap diameternya."],
+ [["pythagoras","teorema pythagoras"],"Teorema Pythagoras: pada segitiga siku-siku, a² + b² = c² (c = sisi miring)."],
+ [["luas lingkaran"],"Luas lingkaran = π × r². Keliling = 2 × π × r."],
+ [["tahun kabisat"],"Tahun kabisat punya 366 hari (29 Februari), terjadi tiap 4 tahun (kecuali tahun abad yang tak habis dibagi 400)."],
+ [["warna pelangi","mejikuhibiniu"],"Warna pelangi: merah, jingga, kuning, hijau, biru, nila, ungu (mejikuhibiniu). 🌈"],
+ [["proklamasi","kemerdekaan indonesia","17 agustus"],"Indonesia memproklamasikan kemerdekaan pada 17 Agustus 1945 di Jakarta, dibacakan oleh Soekarno dan Mohammad Hatta. 🇮🇩"],
+ [["presiden pertama"],"Presiden pertama Indonesia adalah Ir. Soekarno (1945–1967); wakil presiden pertama Mohammad Hatta."],
+ [["pancasila"],"Pancasila punya 5 sila: Ketuhanan Yang Maha Esa; Kemanusiaan yang adil dan beradab; Persatuan Indonesia; Kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan; Keadilan sosial bagi seluruh rakyat Indonesia."],
+ [["sumpah pemuda"],"Sumpah Pemuda diikrarkan 28 Oktober 1928: satu tanah air, satu bangsa, satu bahasa — Indonesia."],
+ [["jumlah provinsi","berapa provinsi"],"Indonesia memiliki 38 provinsi (setelah pemekaran Papua tahun 2022)."],
+ [["pulau terbesar","pulau terbanyak","jumlah pulau"],"Indonesia adalah negara kepulauan dengan belasan ribu pulau. Pulau terbesarnya: Kalimantan (Borneo, dibagi tiga negara) dan Sumatra; Papua juga sangat besar."],
+ [["danau toba"],"Danau Toba di Sumatra Utara adalah danau vulkanik terbesar di dunia, terbentuk dari letusan super ±74.000 tahun lalu."],
+ [["borobudur"],"Candi Borobudur (Jawa Tengah) adalah candi Buddha terbesar di dunia, dibangun abad ke-8–9 pada masa Dinasti Syailendra."],
+ [["mata uang indonesia","rupiah"],"Mata uang Indonesia adalah Rupiah (IDR)."],
+ [["lagu kebangsaan"],"Lagu kebangsaan Indonesia adalah \"Indonesia Raya\", ciptaan W.R. Supratman (pertama dikumandangkan 1928)."],
+ [["perang dunia 1","perang dunia i","pd1"],"Perang Dunia I berlangsung 1914–1918."],
+ [["perang dunia 2","perang dunia ii","pd2"],"Perang Dunia II berlangsung 1939–1945."],
+ [["revolusi prancis"],"Revolusi Prancis dimulai tahun 1789 dengan jatuhnya penjara Bastille."],
+ [["columbus"],"Christopher Columbus tiba di benua Amerika (Karibia) pada 1492."],
+ [["neil armstrong","pendaratan bulan","apollo 11"],"Neil Armstrong menjadi manusia pertama yang berjalan di Bulan pada 20 Juli 1969 (misi Apollo 11). 🚀"],
+ [["piramida giza","piramida"],"Piramida Agung Giza di Mesir dibangun ±2560 SM untuk Firaun Khufu; satu-satunya keajaiban dunia kuno yang masih berdiri."],
+ [["tembok besar"],"Tembok Besar Tiongkok dibangun dan diperpanjang selama berabad-abad; total seluruh segmennya ribuan kilometer."],
+ [["einstein"],"Albert Einstein (1879–1955) mengembangkan teori relativitas (E = mc²) dan meraih Nobel Fisika 1921."],
+ [["newton"],"Isaac Newton merumuskan tiga hukum gerak dan hukum gravitasi universal."],
+ [["darwin","evolusi"],"Charles Darwin mengajukan teori evolusi melalui seleksi alam dalam buku \"On the Origin of Species\" (1859)."],
+ [["marie curie"],"Marie Curie meneliti radioaktivitas, menemukan polonium dan radium, dan menang Nobel dua kali (Fisika & Kimia)."],
+ [["leonardo da vinci","mona lisa"],"Leonardo da Vinci (1452–1519) adalah polimat Renaisans; karya terkenalnya \"Mona Lisa\" dan \"The Last Supper\"."],
+ [["shakespeare"],"William Shakespeare (1564–1616), dramawan Inggris, menulis Hamlet, Romeo and Juliet, Macbeth, dan lainnya."],
+ [["internet","world wide web","www"],"Internet adalah jaringan global komputer. Web (WWW) ditemukan Tim Berners-Lee pada 1989–1991."],
+ [["kecerdasan buatan","artificial intelligence","apa itu ai"],"AI (kecerdasan buatan) adalah sistem komputer yang meniru kemampuan kognitif, misalnya belajar, bernalar, dan memahami bahasa. Nova sendiri hanya berbasis aturan, bukan model AI besar."],
+ [["html"],"HTML (HyperText Markup Language) adalah bahasa penanda untuk struktur halaman web; CSS untuk tampilan, JavaScript untuk interaksi."],
+ [["python"],"Python adalah bahasa pemrograman serbaguna yang dikenal sintaksnya mudah dibaca; dipakai untuk web, data, dan AI."],
+ [["javascript"],"JavaScript adalah bahasa pemrograman utama di browser, juga bisa berjalan di server lewat Node.js."],
+ [["cpu","prosesor"],"CPU adalah \"otak\" komputer yang menjalankan instruksi program. RAM adalah memori sementara yang cepat untuk data yang sedang dipakai."],
+ [["bit dan byte","byte","kilobyte","megabyte","gigabyte"],"1 byte = 8 bit. 1 KB ≈ 1.000 byte (atau 1.024 dalam biner), 1 MB ≈ 1.000 KB, 1 GB ≈ 1.000 MB."],
+ [["jam tidur","berapa lama tidur","tidur"],"Orang dewasa umumnya disarankan tidur 7–9 jam per malam. 😴"],
+ [["minum air","berapa liter air"],"Kebutuhan cairan bervariasi, kira-kira 1,5–2,5 liter per hari bagi kebanyakan orang dewasa, tergantung aktivitas dan cuaca. 💧"],
+ [["olahraga"],"WHO menyarankan orang dewasa 150–300 menit aktivitas fisik intensitas sedang per minggu, plus latihan penguatan otot 2 kali/minggu."],
+ [["vitamin c"],"Vitamin C banyak ada di jeruk, jambu biji, paprika, dan stroberi; berperan untuk daya tahan tubuh dan pembentukan kolagen. 🍊"],
+ [["jumlah hari","hari dalam setahun","berapa hari setahun"],"Setahun ada 365 hari (366 pada tahun kabisat), 12 bulan, dan 52 minggu lebih."],
+];
+
+const SMALL = [
+ [/^(halo|hai|hi|hei|hey|assalamualaikum|selamat (pagi|siang|sore|malam)|pagi|siang|sore|malam)( \S+){0,2}$/, ["Halo! 👋 Ada yang bisa saya bantu hari ini?","Hai! Senang bertemu kamu. Mau tanya apa?"]],
+ [/\b(apa kabar|gimana kabar|how are you)\b/, ["Saya baik-baik saja, tinggal di browser kamu 😄 Kamu sendiri bagaimana?"]],
+ [/\b(siapa kamu|kamu siapa|apa itu nova|namamu)\b/, ["Saya Nova AI, asisten berbasis aturan yang berjalan sepenuhnya di browser kamu. Bukan model AI besar, tapi punya basis pengetahuan umum, kalkulator, analisis foto sederhana, dan obrolan suara."]],
+ [/\b(siapa yang buat|pembuat|dibuat oleh|developer)\b/, ["Saya dibuat oleh Dodi sebagai demo asisten offline."]],
+ [/\b(terima kasih|makasih|thanks|thank you)\b/, ["Sama-sama! 😊"]],
+ [/\b(selamat tinggal|bye|dadah|sampai jumpa)\b/, ["Sampai jumpa! 👋"]],
+ [/\b(cuaca|suhu (hari ini|sekarang|udara|di))\b/, ["Maaf, saya offline dan tidak punya data cuaca terkini. Cek aplikasi cuaca di HP kamu ya! 🌤️"]],
+ [/\b(motivasi|semangat|sedih|galau|capek|stres)\b/, ["Kamu sudah melangkah lebih jauh dari banyak orang yang bahkan belum mencoba. Istirahat itu boleh, menyerah jangan. 💪✨"]],
+ [/\b(tips|saran).*(belajar|ngoding|programming|kode|coding)\b/, ["Tips belajar coding:\n1. Mulai dari proyek kecil yang kamu sukai\n2. Konsisten 30 menit/hari\n3. Baca kode orang lain\n4. Jangan takut error — itu gurumu 😄"]],
+ [/\b(joke|lelucon|lucu|cerita)\b/, ["Kenapa programmer tak bisa bedakan Halloween dan Natal?\nKarena Oct 31 == Dec 25 😄"]],
+ [/\b(bisa apa|fitur|kemampuan)\b/, ["Saya bisa:\n• Pengetahuan umum (negara & ibu kota, sains, sejarah, Indonesia, teknologi, kesehatan)\n• Hitung: 25*4+10, 15% dari 200, 2^10\n• Jam & tanggal\n• 📷 Banyak foto sekaligus: dikenali otomatis (tebakan adegan, wajah/QR bila didukung browser), ukuran, warna, perbandingan\n• 🛠️ ±700 alat developer (bisa dibandingkan, mis. beda React vs Vue): tanya \"apa itu Docker\", \"database apa saja\", \"framework frontend apa saja\"\n• 🎤 Obrolan suara & 🔊 baca jawaban\n\nSemua berjalan lokal. Pengenalan gambar saya heuristik, bukan model AI penuh."]],
+];
+
+const FALLBACK = [
+ "Itu di luar basis pengetahuan saya 😅 Coba tanya soal sains, geografi, sejarah, Indonesia, matematika, atau ketik \"fitur\".",
+ "Saya belum mengenal topik itu. Coba pertanyaan lain, atau ketik \"fitur\" untuk melihat apa yang bisa saya jawab.",
+];
+
+/* ================= Kalkulator (parser sendiri, tanpa eval) ================= */
+function evalMath(s) {
+  const tk = s.match(/\d+(?:\.\d+)?|[()+\-*/^]/g) || [];
+  let i = 0;
+  const peek = () => tk[i], next = () => tk[i++];
+  function expr() { let v = term(); while (peek() === "+" || peek() === "-") v = next() === "+" ? v + term() : v - term(); return v; }
+  function term() { let v = unary(); while (peek() === "*" || peek() === "/") v = next() === "*" ? v * unary() : v / unary(); return v; }
+  function unary() { if (peek() === "-") { next(); return -unary(); } return pow(); }
+  function pow() { const b = prim(); if (peek() === "^") { next(); return Math.pow(b, unary()); } return b; }
+  function prim() {
+    const t = next();
+    if (t === "(") { const v = expr(); if (next() !== ")") throw 0; return v; }
+    if (t === undefined || !/^\d/.test(t)) throw 0;
+    return parseFloat(t);
+  }
+  const v = expr();
+  if (i < tk.length) throw 0;
+  return v;
+}
+function calc(raw) {
+  const t = raw.toLowerCase().replace(/\b[1-9]\d{0,2}(?:\.\d{3})+\b/g, (x) => x.replace(/\./g, "")).replace(/,/g, ".");
+  let m = t.match(/(\d+(?:\.\d+)?)\s*(?:%|persen)\s*(?:dari|of)\s*(\d+(?:\.\d+)?)/);
+  if (m) return `🧮 ${fmt(+m[1])}% dari ${fmt(+m[2])} = ${fmt(+m[1] * +m[2] / 100)}`;
+  if (/\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/.test(t)) return null; // kemungkinan tanggal
+  const u = t.replace(/(\d)\s*[x×]\s*(?=[\d(])/g, "$1*").replace(/÷/g, "/");
+  m = u.match(/(?:-\s*)?[\d(][\d.\s+\-*/^()]*[\d)]/);
+  if (!m || !/[+\-*/^]/.test(m[0])) return null;
+  const rest = u.replace(m[0], " ").replace(/[^a-z\s]/g, " ").trim().split(/\s+/).filter(Boolean);
+  if (rest.length > 5) return null; // terlalu banyak teks lain: bukan soal hitung
+  if (/^\d+(-\d+){2,}$/.test(m[0].trim()) || (rest.length && /^\d+-\d+$/.test(m[0].trim()))) return null; // kemungkinan rentang, mis. 7-8 jam
+  try {
+    const v = evalMath(m[0]);
+    if (!isFinite(v)) return /\/\s*0(?![\d.])/.test(m[0]) ? "🧮 Pembagian dengan nol tidak terdefinisi." : null;
+    return `🧮 ${m[0].trim().replace(/\s+/g, " ").replace(/\*/g, "×").replace(/\//g, "÷").replace(/\./g, ",")} = ${fmt(v)}`;
+  } catch (e) { return null; }
+}
+const fmt = (v) => {
+  if (!isFinite(v)) return String(v);
+  const a = Math.abs(v);
+  if (a !== 0 && (a >= 1e21 || a < 1e-10)) return v.toExponential(6).replace(".", ",");
+  const r = a >= 1e15 ? v : Math.round(v * 1e10) / 1e10;
+  return r.toLocaleString("id-ID", { maximumFractionDigits: 10 });
+};
+
+/* ================= Basis pengetahuan teknologi (±700 nama) ================= */
+const kk = (s) => s.toLowerCase().replace(/c\+\+/g, "cpp").replace(/c#/g, "csharp").replace(/f#/g, "fsharp").replace(/\.net/g, "dotnet").replace(/[^a-z0-9]/g, "");
+const CATS = [
+ ["Bahasa pemrograman", /bahasa (pemrograman|coding)|programming language/, "Bahasa untuk memberi instruksi ke komputer.", "JavaScript|js;TypeScript|ts;Python;Java;C++;C#;PHP;Ruby;Go|golang;Rust;Kotlin;Swift;Dart;R;Julia;Scala;Perl;MATLAB;Lua;SQL;Clojure;Elixir;Erlang;Haskell;F#;OCaml;Zig;Nix;GDScript;Visual Basic .NET|vbnet;VBA;Groovy;COBOL;Fortran;Scratch;Delphi|Object Pascal;Ada;Prolog;Solidity;Mojo;Odin;Elm;Bash|shell;HTML5|html|HTML & CSS;CSS3|css;Markdown|md"],
+ ["Frontend & UI", /frontend|front-end|ui library|css framework|state management/, "Alat untuk membangun antarmuka web.", "React|React.js|reactjs;Vue.js|vue;Angular;Next.js;Nuxt.js|nuxt;Svelte;SolidJS;Astro;Qwik;Alpine.js;HTMX;Lit;Stencil;Gatsby;Hugo;Jekyll;Eleventy;Web Components;Shadow DOM;Service Workers|service worker;Sass|SCSS;Less;PostCSS;CSS Modules;Styled Components;Emotion;Tailwind CSS|tailwind;Bootstrap;Bulma;Foundation;Semantic UI;DaisyUI;Material UI|MUI;Chakra UI;Shadcn/ui|shadcn;Radix UI;Ant Design|antd;PrimeReact;Vuetify;Quasar Framework;Redux Toolkit|redux;Zustand;MobX;Recoil;XState;TanStack Query|react query;Apollo Client|apollo;Tailwind CSS CLI"],
+ ["Backend & server", /backend|back-end|web server|framework (server|backend)/, "Alat untuk logika server dan API.", "Node.js|node;Express.js|express;Django;Flask;FastAPI;Spring Boot|spring;Laravel;Ruby on Rails|rails;ASP.NET Core|asp.net;Deno;Bun;Strapi;Passport.js|passport;Nginx;Apache HTTP Server|apache"],
+ ["Database & ORM", /database|basis data|\borm\b/, "Penyimpanan dan pengelolaan data.", "MySQL;PostgreSQL|postgres;MongoDB|mongo;SQLite;Oracle Database|oracle;Microsoft SQL Server|sql server|mssql;Redis;Snowflake;Elasticsearch;Firebase;Supabase;Appwrite;Prisma|Prisma ORM;Drizzle ORM|drizzle;Knex.js|knex;TypeORM;Hibernate;SQLAlchemy;Mongoose;Sequelize;Flyway;Liquibase;Postgres CLI|psql;Redis CLI|redis-cli"],
+ ["DevOps & versi kode", /devops|ci\/?cd|container|kontrol versi|version control/, "Alat untuk versi kode, build, dan deployment.", "Git;GitHub;GitLab;Bitbucket;SourceTree;Mercurial|hg;SVN|Subversion;Docker;Docker Compose;Kubernetes|k8s;Helm|Kubernetes Helm;Terraform;Ansible;ArgoCD;Jenkins;GitHub Actions;CircleCI;Travis CI;CI/CD|cicd;Linux;Terminal;Wget"],
+ ["Cloud & hosting", /cloud|hosting|deploy/, "Layanan infrastruktur dan hosting.", "AWS|Amazon Web Services;Google Cloud|GCP;Microsoft Azure|Azure;Vercel;Netlify;Heroku;DigitalOcean;Cloudflare;Render;Fly.io;Railway;GitHub Pages"],
+ ["Data, AI & big data", /data science|machine learning|big data|data engineering|\bai\b/, "Alat analisis data dan kecerdasan buatan.", "PyTorch;TensorFlow;Scikit-learn|sklearn;Pandas;NumPy;Jupyter Notebook|jupyter;Google Colab|colab;vLLM;Apache Spark|spark;Hadoop;Hive;Presto;Trino;Databricks;Airflow;Luigi;Prefect;dbt;Apache Kafka|kafka;Beautiful Soup|bs4;Scrapy;Puppeteer;Cheerio"],
+ ["Testing & kualitas kode", /testing|pengujian|linter|load test/, "Alat menguji dan menjaga kualitas kode/performa.", "Jest;Mocha;Cypress;Playwright;Selenium;Vitest;JMeter;Gatling;Locust;Artillery;k6;Apache Bench|ab;Lighthouse;WebPageTest;Pingdom;GTmetrix;SoapUI;Postman;Postman CLI;Insomnia;Chrome DevTools|devtools;SonarQube;ESLint;Prettier;Ruff;Black;Stoplight;Apiary"],
+ ["Keamanan & autentikasi", /keamanan|security|autentikasi|pentest/, "Alat dan standar pengamanan sistem.", "JWT|JSON Web Token;OAuth 2.0|oauth;OpenID Connect|oidc;SAML;LDAP;Active Directory;Kerberos;RADIUS;TACACS+;SSO|Single Sign-On;MFA|Multi-Factor Authentication;Biometric Auth;WebAuthn;FIDO2;Passkeys;YubiKey;Google Authenticator;Authy;1Password;LastPass;Bitwarden;KeePass;HashiCorp Vault|vault;AWS Secrets Manager;GCP Secret Manager;Azure Key Vault;Doppler;Infisical;Checkmarx;Veracode;Fortify;Snyk;Burp Suite|burp;OWASP ZAP|zap;Nmap;Metasploit;Nessus;Qualys;Tripwire;Snort;Suricata;Zeek;Wireshark;OpenSSL;Bcrypt;CryptoJS;Auth0;Clerk;Kinde;Okta;AWS Cognito|cognito;Firebase Auth"],
+ ["Monitoring & analitik", /monitoring|observability|logging|analytics|analitik/, "Memantau performa, log, dan perilaku pengguna.", "Sentry;Datadog;Prometheus;Grafana;ELK Stack|ELK;Kibana;Logstash;Fluentd;Graylog;Loki;Tempo;OpenTelemetry|otel;Jaeger;Zipkin;Splunk;New Relic;Dynatrace;AppDynamics;AppOptics;CloudWatch;Stackdriver;Azure Monitor;LogRocket;FullStory;PostHog;Mixpanel;Amplitude;Google Analytics;Matomo;Plausible Analytics|plausible;Fathom Analytics|fathom;Segment;RudderStack"],
+ ["Editor & IDE", /editor|\bide\b/, "Tempat menulis dan men-debug kode.", "VS Code|vscode|Visual Studio Code;Vim;Neovim|nvim;Nano;Emacs;Sublime Text|sublime;PyCharm;IntelliJ IDEA|intellij;WebStorm;Android Studio;Xcode;Eclipse;NetBeans;Notepad++;Cursor IDE|cursor;Windsurf;Claude Code;GitHub Copilot|Copilot;ChatGPT;Stack Overflow"],
+ ["Paket & build", /package manager|build tool|bundler|formatter/, "Pengelola paket, build, dan transpiler.", "npm;pip;Yarn;pnpm;Composer;Maven;Gradle;Cargo;Hex;Mix;Homebrew|brew;Chocolatey|choco;APT|yum;uv|Astral uv;Webpack;Vite;Babel"],
+ ["Mobile, desktop & game", /mobile|desktop app|game engine|aplikasi desktop/, "Membangun aplikasi mobile, desktop, dan game.", "React Native;Flutter;Ionic;Cordova;Capacitor;Expo;Xamarin|MAUI;Electron;Tauri;NW.js|nwjs;Unity;Unreal Engine|unreal;Godot;Blender"],
+ ["Desain & kolaborasi", /design tool|alat desain|kolaborasi|project management|manajemen proyek/, "Desain, diagram, dan manajemen tim/proyek.", "Figma;Canva;Miro;Lucidchart;Draw.io|drawio;Excalidraw;PlantUML;Mermaid.js|mermaid;Adobe Photoshop|photoshop;Adobe Illustrator|illustrator;GIMP;Inkscape;Jira;Trello;Notion;Slack;Microsoft Teams|teams;Zoom;ClickUp;Asana;Confluence"],
+ ["API, protokol & format data", /\bapi\b|protokol|format data|serialization/, "Cara sistem saling bertukar data.", "REST API|REST;GraphQL;gRPC;WebSockets|WebSocket;WebRTC;Server-Sent Events|SSE;Protocol Buffers|protobuf;Thrift;Avro;MessagePack;BSON;CBOR;ASN.1;JSON-RPC;XML-RPC;SOAP;WSDL;UDDI;JSON;XML;YAML;TOML;Swagger|OpenAPI;AsyncAPI;Postman MockServers;Axios;Fetch API|fetch;cURL;GraphQL Schema"],
+ ["CMS, e-commerce & pembayaran", /\bcms\b|e-?commerce|payment|pembayaran/, "Platform konten, toko online, dan pembayaran.", "WordPress;Drupal;Joomla;Ghost CMS|ghost;Contentful;Sanity.io|sanity;Stripe;PayPal SDK|paypal;Braintree;Razorpay;Adyen;Shopify API|shopify;WooCommerce API|woocommerce;Magento|Adobe Commerce;Salesforce Commerce Cloud"],
+];
+const DET = {};
+`Git::Sistem kontrol versi terdistribusi untuk melacak perubahan kode (buatan Linus Torvalds, 2005).
+GitHub::Platform hosting repositori Git dengan pull request, issue, dan GitHub Actions (dimiliki Microsoft).
+GitLab::Platform DevOps lengkap berbasis Git dengan CI/CD bawaan; bisa di-host sendiri.
+Docker::Mengemas aplikasi beserta dependensinya ke container agar berjalan sama di mana saja.
+Docker Compose::Mendefinisikan dan menjalankan banyak container sekaligus lewat satu file YAML.
+Kubernetes::Orkestrator container (dari Google) untuk deploy, scaling, dan pemulihan otomatis.
+Terraform::Infrastructure as Code: infrastruktur cloud ditulis sebagai kode deklaratif (HashiCorp).
+Ansible::Otomasi konfigurasi server memakai playbook YAML tanpa agen.
+Jenkins::Server otomasi CI/CD open-source dengan ribuan plugin.
+GitHub Actions::CI/CD bawaan GitHub; workflow didefinisikan di .github/workflows/*.yml.
+JavaScript::Bahasa utama web; berjalan di browser dan server (Node.js).
+TypeScript::JavaScript dengan tipe statis dari Microsoft; dikompilasi menjadi JavaScript.
+Python::Bahasa serbaguna berkesan mudah dibaca; populer untuk web, data, dan AI.
+Java::Bahasa berorientasi objek yang berjalan di JVM; dipakai di enterprise dan Android lama.
+C++::Bahasa cepat dan low-level untuk game, sistem, dan aplikasi performa tinggi.
+C#::Bahasa modern Microsoft untuk .NET: web, desktop, game Unity.
+PHP::Bahasa skrip sisi server yang menjalankan WordPress dan Laravel.
+Ruby::Bahasa dinamis yang ramah programmer; terkenal lewat framework Rails.
+Go::Bahasa Google yang sederhana, cepat, dengan konkurensi (goroutine); populer untuk cloud.
+Rust::Bahasa sistem yang aman memori tanpa garbage collector berkat konsep ownership.
+Kotlin::Bahasa modern JVM; bahasa resmi Android.
+Swift::Bahasa Apple untuk iOS, macOS, dan ekosistem Apple lainnya.
+Dart::Bahasa Google di balik framework Flutter.
+R::Bahasa untuk statistik dan visualisasi data.
+Julia::Bahasa komputasi ilmiah yang cepat dan mudah ditulis.
+Scala::Bahasa JVM yang memadukan OOP dan fungsional; dasar Apache Spark.
+Lua::Bahasa skrip ringan untuk game dan embedding (mis. Roblox, Neovim).
+SQL::Bahasa standar untuk mengelola dan meng-query database relasional.
+Solidity::Bahasa smart contract untuk blockchain Ethereum.
+COBOL::Bahasa lawas yang masih menjalankan banyak sistem bank dan pemerintahan.
+Haskell::Bahasa fungsional murni dengan sistem tipe kuat.
+Elixir::Bahasa fungsional di atas Erlang VM; kuat untuk sistem konkuren (Phoenix).
+Zig::Bahasa sistem modern sebagai alternatif C dengan kontrol eksplisit.
+Mojo::Bahasa yang kompatibel dengan Python dan dirancang untuk performa AI.
+MySQL::Database relasional open-source yang populer untuk web.
+PostgreSQL::Database relasional open-source yang kaya fitur (JSON, ekstensi, transaksi kuat).
+MongoDB::Database NoSQL berbasis dokumen (BSON).
+SQLite::Database relasional dalam satu file tanpa server; dipakai di HP dan browser.
+Redis::Penyimpanan key-value in-memory untuk cache, antrean, dan sesi.
+Node.js::Runtime JavaScript di server berbasis mesin V8.
+Express.js::Framework web minimalis untuk Node.js.
+Django::Framework web Python "batteries included" dengan ORM dan admin.
+Flask::Micro-framework web Python yang ringan dan fleksibel.
+FastAPI::Framework API Python modern, cepat, dengan validasi tipe dan dokumentasi otomatis.
+Spring Boot::Framework Java untuk membuat aplikasi/API siap produksi dengan konfigurasi minimal.
+Laravel::Framework PHP yang elegan dengan Eloquent ORM dan Blade.
+Ruby on Rails::Framework web Ruby yang menekankan convention over configuration.
+React::Library UI berbasis komponen dari Meta; memakai virtual DOM dan hooks.
+Vue.js::Framework UI progresif yang mudah dipelajari.
+Angular::Framework lengkap dari Google berbasis TypeScript.
+Next.js::Framework React dengan SSR, routing, dan optimasi bawaan (Vercel).
+Svelte::Framework UI yang mengompilasi komponen menjadi JS ringan tanpa virtual DOM.
+Tailwind CSS::Framework CSS utility-first: styling lewat class kecil langsung di HTML.
+Bootstrap::Framework CSS berisi komponen siap pakai dan grid responsif.
+VS Code::Editor kode gratis dari Microsoft dengan ekstensi, debugger, dan terminal terpadu.
+Vim::Editor teks modal di terminal; efisien tanpa mouse.
+npm::Pengelola paket Node.js dan registry paket JavaScript terbesar.
+pip::Pengelola paket Python (pip install nama-paket).
+Webpack::Bundler modul JavaScript yang menggabungkan aset.
+Vite::Build tool modern dengan dev server super cepat memakai ES modules.
+ESLint::Linter yang menemukan masalah dan gaya buruk pada kode JavaScript/TypeScript.
+Prettier::Formatter kode otomatis agar gaya penulisan seragam.
+Jest::Framework unit test JavaScript dari Meta.
+Cypress::Alat end-to-end test web yang berjalan langsung di browser.
+Playwright::Otomasi dan testing lintas browser (Chromium, Firefox, WebKit) dari Microsoft.
+Selenium::Otomasi browser klasik untuk testing web.
+Postman::Aplikasi untuk menguji dan mendokumentasikan API.
+GraphQL::Bahasa query API (dari Meta): klien meminta persis data yang dibutuhkan.
+REST API::Gaya API berbasis HTTP dengan resource, metode GET/POST/PUT/DELETE, biasanya JSON.
+gRPC::Framework RPC cepat dari Google memakai HTTP/2 dan Protocol Buffers.
+WebSockets::Koneksi dua arah persisten antara browser dan server untuk data real-time.
+JWT::Token terenkripsi/ditandatangani (header.payload.signature) untuk autentikasi stateless.
+OAuth 2.0::Standar otorisasi: aplikasi mendapat akses terbatas tanpa memegang kata sandi pengguna.
+AWS::Platform cloud Amazon (EC2, S3, Lambda, RDS, dll.), terbesar di pasar.
+Microsoft Azure::Platform cloud Microsoft; kuat untuk enterprise dan ekosistem .NET.
+Google Cloud::Platform cloud Google (Compute Engine, BigQuery, GKE).
+Vercel::Hosting frontend dengan deploy otomatis dari Git; pembuat Next.js.
+Netlify::Hosting situs statis/JAMstack dengan CI otomatis dan serverless functions.
+Firebase::Backend-as-a-Service Google: database, auth, hosting, dan notifikasi.
+Supabase::Alternatif Firebase open-source berbasis PostgreSQL.
+PyTorch::Framework deep learning dari Meta, populer di riset.
+TensorFlow::Framework machine learning dari Google.
+Scikit-learn::Library ML klasik Python (klasifikasi, regresi, clustering).
+Pandas::Library Python untuk manipulasi data tabel (DataFrame).
+NumPy::Library Python untuk array dan komputasi numerik.
+Jupyter Notebook::Dokumen interaktif yang memadukan kode, hasil, dan teks.
+Apache Kafka::Platform streaming event terdistribusi dengan throughput tinggi.
+Apache Spark::Mesin pemrosesan data besar terdistribusi dalam memori.
+Airflow::Platform orkestrasi pipeline data berbasis DAG Python.
+Prometheus::Sistem monitoring dan alerting berbasis metrik time-series.
+Grafana::Dashboard visualisasi metrik dan log.
+Sentry::Pelacak error dan performa aplikasi.
+Figma::Alat desain UI kolaboratif berbasis browser.
+Jira::Alat manajemen proyek dan issue tracking (Atlassian), populer di tim Agile.
+HTML5::Standar terbaru bahasa penanda web: elemen semantik, audio/video, canvas, dan API modern.
+CSS3::Bahasa gaya tampilan web: flexbox/grid, animasi, dan desain responsif.
+Bash::Shell Unix/Linux paling umum untuk menjalankan perintah dan skrip otomasi.
+Markdown::Format teks ringan (.md) dengan sintaks seperti # judul dan **tebal**.
+JSON::Format data teks berpasangan key-value yang dipakai hampir semua API web.
+YAML::Format konfigurasi yang mudah dibaca manusia (berbasis indentasi).
+XML::Bahasa penanda berbasis tag untuk data terstruktur.
+Linux::Kernel sistem operasi open-source (Linus Torvalds, 1991) yang menggerakkan sebagian besar server.
+Terminal::Antarmuka baris perintah (CLI); shell populer: Bash, Zsh.
+Wireshark::Penganalisis paket jaringan untuk menangkap dan memeriksa lalu lintas.
+Nmap::Pemindai jaringan dan port untuk audit keamanan.
+Nginx::Web server dan reverse proxy berperforma tinggi.
+Cloudflare::Layanan CDN, DNS, dan perlindungan DDoS/WAF.
+Elasticsearch::Mesin pencari dan analitik terdistribusi (inti ELK Stack).
+Claude Code::Agen coding dari Anthropic yang bekerja di terminal/IDE untuk membaca dan mengubah kode.
+Cursor IDE::Editor kode berbasis VS Code dengan AI terintegrasi.
+GitHub Copilot::Asisten pengodean AI di editor dari GitHub/Microsoft.
+Flutter::Toolkit UI Google (bahasa Dart) untuk aplikasi mobile, web, dan desktop dari satu kode.
+React Native::Framework Meta untuk aplikasi mobile native memakai React.
+Electron::Framework aplikasi desktop dengan teknologi web (VS Code, Slack).
+Unity::Game engine populer (C#) untuk 2D/3D dan AR/VR.
+Godot::Game engine open-source ringan dengan bahasa GDScript.
+WordPress::CMS open-source (PHP) yang menjalankan sebagian besar situs web.
+Stripe::Platform pembayaran online dengan API ramah developer.
+Mermaid.js::Membuat diagram dari teks (flowchart, sequence) di Markdown.
+Helm::Pengelola paket untuk Kubernetes (chart).
+ArgoCD::Alat GitOps deklaratif untuk Kubernetes.
+Deno::Runtime JavaScript/TypeScript aman dari pembuat Node.js.
+Bun::Runtime JavaScript super cepat sekaligus bundler dan package manager.
+Cargo::Package manager dan build tool Rust.
+Maven::Alat build dan dependensi Java berbasis pom.xml.
+Gradle::Alat build fleksibel untuk Java/Kotlin/Android.
+Stack Overflow::Situs tanya-jawab komunitas developer (sejak 2008) untuk mencari solusi error dan potongan kode; selalu cek tanggal dan versi jawabannya.
+ChatGPT::Asisten AI percakapan buatan OpenAI untuk menjelaskan, menulis, dan men-debug kode; periksa dulu hasilnya sebelum dipakai.
+Chrome DevTools::Perangkat developer bawaan Chrome (F12): inspeksi HTML/CSS, konsol JavaScript, tab Network, debugger, dan audit performa.
+CI/CD::Continuous Integration/Delivery: build, tes, dan rilis kode otomatis setiap ada perubahan. Contoh alat: Jenkins, GitHub Actions, GitLab CI, CircleCI.
+Perl::Bahasa skrip dinamis yang kuat untuk pengolahan teks (regex) dan skrip sistem; populer sejak 1990-an.
+MATLAB::Lingkungan komputasi numerik dan bahasa untuk matriks, simulasi, dan visualisasi (komersial, MathWorks).
+Sass::Preprocessor CSS dengan variabel, nesting, mixin, dan fungsi yang dikompilasi menjadi CSS biasa.
+Nuxt.js::Framework berbasis Vue.js untuk SSR, situs statis, dan routing otomatis (setara Next.js untuk React).
+ASP.NET Core::Framework web lintas platform dari Microsoft (C#) untuk API dan aplikasi web berkinerja tinggi.
+Oracle Database::Basis data relasional komersial skala enterprise dari Oracle, dengan bahasa PL/SQL.
+Microsoft SQL Server::Basis data relasional Microsoft yang memakai T-SQL; dipakai luas di lingkungan enterprise dan .NET.
+Apollo Client::Library JavaScript untuk mengambil, men-cache, dan mengelola data GraphQL di aplikasi frontend (misalnya React).
+Prisma::ORM TypeScript/Node.js modern dengan schema deklaratif, migrasi, dan client yang type-safe.
+Mongoose::Library ODM untuk Node.js yang memberi skema dan validasi pada data MongoDB.
+Sequelize::ORM Node.js berbasis promise untuk MySQL, PostgreSQL, SQLite, dan MSSQL.
+Google Colab::Notebook Jupyter di cloud dari Google; gratis dengan GPU/TPU terbatas, cocok untuk belajar machine learning.
+Babel::Transpiler JavaScript yang mengubah kode modern (ES6+, JSX) menjadi versi yang didukung browser lama.
+Mocha::Framework testing JavaScript fleksibel untuk Node.js dan browser; biasanya dipasangkan dengan Chai.
+Vitest::Framework testing cepat berbasis Vite dengan API mirip Jest.
+Postman CLI::Versi baris perintah Postman untuk menjalankan koleksi API dan tes otomatis di pipeline CI/CD.
+Insomnia::Klien API (REST, GraphQL, gRPC) open-source dari Kong, alternatif Postman.
+Bitbucket::Platform hosting Git dari Atlassian dengan integrasi Jira dan Bitbucket Pipelines.
+SourceTree::Klien Git GUI gratis dari Atlassian untuk Windows dan macOS.
+SonarQube::Platform analisis kualitas dan keamanan kode statis: bug, code smell, duplikasi, dan kerentanan.
+Snyk::Alat keamanan developer yang memindai kerentanan di dependensi, kode, container, dan infrastruktur-sebagai-kode.
+Apache HTTP Server::Web server open-source veteran (httpd) dengan modul fleksibel dan konfigurasi lewat .htaccess.
+Appwrite::Backend-as-a-Service open-source (auth, database, storage, functions) yang bisa di-host sendiri.
+Heroku::Platform PaaS (Salesforce) untuk men-deploy aplikasi lewat git push atau container tanpa mengelola server.
+DigitalOcean::Penyedia cloud dengan Droplet (VPS), Kubernetes, dan App Platform yang sederhana dan ramah developer.
+PostHog::Platform analitik produk open-source: event, session replay, feature flag, dan A/B testing.
+Datadog::Platform monitoring cloud untuk metrik, log, APM, dan keamanan dalam satu dashboard.
+Notion::Aplikasi workspace untuk catatan, dokumen, database, dan manajemen proyek.
+Slack::Platform chat tim berbasis channel dengan integrasi bot dan aplikasi (dimiliki Salesforce).
+Microsoft Teams::Platform chat, rapat video, dan kolaborasi Microsoft yang terintegrasi dengan Microsoft 365.
+Zoom::Layanan konferensi video dan webinar yang populer.
+ClickUp::Aplikasi manajemen proyek serba ada: tugas, dokumen, target, dan dashboard.
+Asana::Alat manajemen kerja tim dengan tugas, timeline, dan board proyek.
+Confluence::Wiki dan dokumentasi tim dari Atlassian, terintegrasi dengan Jira.
+Mercurial::Sistem kontrol versi terdistribusi (perintah hg) yang dikenal mudah dipakai; kini jauh kalah populer dari Git.
+SVN::Subversion (SVN): kontrol versi terpusat dari Apache; riwayat disimpan di satu server pusat.
+Neovim::Fork modern Vim dengan Lua, LSP bawaan, dan ekosistem plugin yang aktif.
+Nano::Editor teks terminal sederhana dan ramah pemula; pintasan ditampilkan di bawah layar.
+Emacs::Editor extensible dengan Emacs Lisp; bisa menjadi lingkungan kerja lengkap (Org-mode, Magit).
+Sublime Text::Editor teks cepat dan ringan dengan multi-cursor dan Goto Anything (berlisensi berbayar).
+PyCharm::IDE Python dari JetBrains: debugger, refactoring, dan dukungan Django/Flask (ada edisi Community gratis).
+IntelliJ IDEA::IDE Java/Kotlin dari JetBrains dengan refactoring dan analisis kode yang kuat.
+WebStorm::IDE JetBrains untuk JavaScript/TypeScript, React, Vue, dan Node.js.
+Android Studio::IDE resmi Google untuk aplikasi Android (berbasis IntelliJ) dengan emulator dan profiler.
+Xcode::IDE resmi Apple untuk aplikasi iOS/macOS (Swift/Objective-C); hanya berjalan di macOS.
+Eclipse::IDE open-source lama untuk Java dengan sistem plugin yang luas.
+NetBeans::IDE open-source (Apache) untuk Java, PHP, dan HTML5.
+Notepad++::Editor teks gratis untuk Windows dengan syntax highlighting dan tab; ringan.
+Homebrew::Package manager untuk macOS (dan Linux): brew install nama-paket.
+Chocolatey::Package manager untuk Windows: choco install nama-paket.
+APT::Package manager Debian/Ubuntu: sudo apt install nama-paket.
+uv::Package manager dan pengelola proyek Python super cepat (ditulis dengan Rust) dari Astral; pengganti pip dan venv.
+Ruff::Linter dan formatter Python sangat cepat (ditulis dengan Rust) dari Astral; menggantikan Flake8, isort, dan lainnya.
+Black::Formatter kode Python yang opinionated: gaya seragam tanpa perdebatan.
+TOML::Format konfigurasi yang mudah dibaca (key = value); dipakai pyproject.toml dan Cargo.toml.
+OpenID Connect::Lapisan identitas di atas OAuth 2.0 untuk login (autentikasi) lewat ID token JWT; dasar fitur Login dengan Google.
+CircleCI::Layanan CI/CD cloud dengan konfigurasi YAML dan eksekusi paralel yang cepat.
+Travis CI::Layanan CI/CD cloud yang dulu sangat populer untuk proyek open-source di GitHub (.travis.yml).
+GitHub Pages::Hosting situs statis gratis dari repositori GitHub (username.github.io).
+Render::Platform cloud untuk web service, database, dan situs statis dengan deploy otomatis dari Git.
+Fly.io::Platform untuk menjalankan aplikasi/container dekat pengguna di banyak region (alat flyctl).
+Railway::Platform deploy modern: hubungkan repo atau Docker, tambahkan database hanya dengan beberapa klik.
+Yarn::Package manager JavaScript alternatif npm (dari Facebook) dengan lockfile dan workspaces.
+pnpm::Package manager JavaScript yang hemat disk dan cepat dengan penyimpanan paket bersama lewat hard link.
+Composer::Package manager PHP (composer.json) yang dipakai Laravel dan Symfony.
+Hex::Package manager dan registry untuk ekosistem Erlang dan Elixir.
+Mix::Build tool dan task runner bawaan Elixir.
+Clojure::Bahasa Lisp modern di JVM yang fungsional dengan data immutable.
+Erlang::Bahasa fungsional untuk sistem konkuren dan toleran-gagal (dibuat Ericsson); dasar WhatsApp dan Elixir.
+F#::Bahasa fungsional .NET dengan inferensi tipe yang kuat.
+OCaml::Bahasa fungsional bertipe statis dengan inferensi tipe; dipakai di kompiler dan industri keuangan (Jane Street).
+Nix::Package manager fungsional dan bahasa deklaratif untuk build dan lingkungan yang reproduktif (dasar NixOS).
+GDScript::Bahasa mirip Python untuk Godot Engine.
+Visual Basic .NET::Bahasa .NET (VB.NET) bersintaks mirip Basic; masih ada di aplikasi bisnis lama.
+VBA::Visual Basic for Applications: bahasa makro untuk mengotomasi Excel, Word, dan Access.
+Groovy::Bahasa dinamis di JVM yang ringkas; dipakai di Gradle dan Jenkins pipeline.
+Fortran::Bahasa tertua untuk komputasi ilmiah/numerik (1957) yang masih dipakai di komputasi performa tinggi.
+Scratch::Bahasa pemrograman visual berbasis blok (MIT) untuk belajar coding bagi anak dan pemula.
+Delphi::Lingkungan RAD berbasis Object Pascal untuk aplikasi desktop (Embarcadero).
+Ada::Bahasa bertipe kuat untuk sistem kritis keselamatan (penerbangan, kereta, militer).
+Prolog::Bahasa pemrograman logika: mendefinisikan fakta dan aturan, lalu mencari jawaban lewat kueri; dipakai untuk AI simbolik.
+Odin::Bahasa sistem modern yang sederhana sebagai alternatif C, populer untuk game dan grafis.
+Elm::Bahasa fungsional murni yang dikompilasi ke JavaScript untuk frontend, terkenal dengan pesan error yang ramah.
+vLLM::Mesin inferensi dan serving LLM berperforma tinggi dengan PagedAttention; kompatibel dengan API OpenAI.
+Windsurf::Editor kode berbasis AI (sebelumnya Codeium) dengan agen yang bisa mengerjakan tugas multi-file.
+TanStack Query::Library (dulu React Query) untuk fetching, caching, dan sinkronisasi data server di frontend.
+Redux Toolkit::Cara resmi yang disarankan memakai Redux: lebih sedikit boilerplate (slice, createAsyncThunk).
+Zustand::State management React yang kecil, cepat, tanpa boilerplate, berbasis hook.
+MobX::State management reaktif: state dilacak otomatis lewat observable.
+Recoil::State management React dari Meta berbasis atom dan selector; pemeliharaannya sudah berhenti, pertimbangkan Jotai atau Zustand.
+XState::Library state machine dan statechart untuk mengelola logika alur yang kompleks.
+Drizzle ORM::ORM TypeScript ringan dengan sintaks mirip SQL dan type-safety yang kuat.
+Knex.js::Query builder SQL untuk Node.js dengan migrasi; mendukung PostgreSQL, MySQL, dan SQLite.
+TypeORM::ORM TypeScript/JavaScript berbasis decorator dengan gaya Active Record atau Data Mapper.
+Hibernate::ORM Java populer yang memetakan objek ke tabel dan merupakan implementasi JPA.
+SQLAlchemy::Toolkit SQL dan ORM Python yang paling populer.
+Flyway::Alat migrasi skema database berbasis versi (file SQL berurutan).
+Liquibase::Alat migrasi dan versioning perubahan database berbasis changelog (XML/YAML/SQL).
+Hadoop::Framework big data terdistribusi: HDFS (penyimpanan) dan MapReduce (pemrosesan).
+Hive::Gudang data di atas Hadoop dengan bahasa mirip SQL (HiveQL).
+Presto::Mesin kueri SQL terdistribusi yang cepat untuk analitik data besar (berasal dari Facebook).
+Trino::Hasil fork Presto untuk kueri SQL terdistribusi lintas banyak sumber data.
+Snowflake::Platform data warehouse cloud dengan pemisahan storage dan compute.
+Databricks::Platform data dan AI berbasis Apache Spark (lakehouse); pembuat Delta Lake dan MLflow.
+Luigi::Library Python (dari Spotify) untuk membangun pipeline batch dengan dependensi antar tugas.
+Prefect::Orkestrasi workflow data berbasis Python modern, alternatif Airflow.
+dbt::Alat transformasi data di data warehouse dengan SQL, tes, dan dokumentasi (data build tool).
+Beautiful Soup::Library Python untuk mem-parsing HTML/XML dan mengambil data (scraping).
+Scrapy::Framework Python untuk web crawling dan scraping skala besar.
+Puppeteer::Library Node.js untuk mengontrol Chrome headless: scraping, screenshot, dan tes UI.
+Cheerio::Library Node.js untuk mem-parsing HTML dengan sintaks mirip jQuery.
+Axios::Klien HTTP berbasis promise untuk browser dan Node.js.
+Fetch API::API bawaan browser untuk permintaan HTTP berbasis promise (fetch(url)); pengganti XMLHttpRequest.
+cURL::Alat baris perintah untuk memanggil URL/HTTP (curl -X POST ...), mendukung banyak protokol.
+Wget::Alat baris perintah untuk mengunduh file dari web; bisa melanjutkan unduhan dan mirroring.
+OpenSSL::Toolkit kriptografi dan TLS/SSL open-source (membuat sertifikat, kunci, dan hash).
+Bcrypt::Algoritma hashing password dengan salt dan cost adaptif yang sengaja lambat untuk menyulitkan brute force.
+CryptoJS::Library JavaScript untuk hashing dan enkripsi (AES, SHA) di sisi klien; untuk keamanan serius lebih baik pakai Web Crypto API.
+Passport.js::Middleware autentikasi untuk Node.js/Express dengan banyak strategi (lokal, OAuth, Google).
+Auth0::Layanan identitas/autentikasi (milik Okta) untuk login, SSO, dan MFA tanpa membangun sendiri.
+Clerk::Layanan autentikasi dan manajemen pengguna dengan komponen UI siap pakai (React/Next.js).
+Kinde::Platform autentikasi dan manajemen pengguna untuk SaaS, dilengkapi feature flag dan billing.
+Okta::Platform identitas enterprise untuk SSO, MFA, dan manajemen akses.
+AWS Cognito::Layanan identitas AWS untuk user pool (sign-up/sign-in) dan identity pool.
+Firebase Auth::Layanan autentikasi Firebase: email, Google, telepon, dan lainnya, dengan SDK siap pakai.
+PostCSS::Alat untuk mentransformasi CSS dengan plugin JavaScript (Autoprefixer, Tailwind).
+Less::Preprocessor CSS dengan variabel dan mixin, mirip Sass.
+CSS Modules::File CSS dengan nama class otomatis lokal per komponen agar tidak bentrok.
+Styled Components::Library CSS-in-JS yang menulis CSS di dalam komponen React lewat template literal.
+Emotion::Library CSS-in-JS yang fleksibel untuk React dan framework lain.
+Material UI::Library komponen React yang menerapkan Material Design (Google); disingkat MUI.
+Chakra UI::Library komponen React yang aksesibel dan mudah dikustomisasi.
+Shadcn/ui::Kumpulan komponen React + Tailwind yang disalin ke proyekmu (bukan paket npm) dan dibangun di atas Radix UI.
+Radix UI::Primitif komponen React tanpa gaya yang aksesibel (dialog, dropdown, tabs).
+Ant Design::Library komponen React kelas enterprise dari Alibaba dengan banyak komponen siap pakai.
+Semantic UI::Framework CSS dengan nama class yang mudah dibaca; pengembangan aslinya melambat (ada fork Fomantic-UI).
+Bulma::Framework CSS modern berbasis Flexbox tanpa JavaScript.
+Foundation::Framework CSS responsif dari ZURB untuk situs dan email.
+DaisyUI::Plugin komponen untuk Tailwind CSS (btn, card, modal) dengan tema siap pakai.
+PrimeReact::Library komponen UI React dari PrimeTek dengan banyak widget.
+Vuetify::Library komponen Vue yang menerapkan Material Design.
+Quasar Framework::Framework Vue.js untuk membuat SPA, PWA, mobile, dan desktop dari satu basis kode.
+Ionic::Framework UI untuk aplikasi mobile hibrida dengan teknologi web (Angular/React/Vue), memakai Capacitor.
+Cordova::Apache Cordova: membungkus aplikasi web menjadi aplikasi mobile native dengan plugin.
+Capacitor::Runtime native dari Ionic untuk membungkus aplikasi web menjadi aplikasi iOS/Android; penerus Cordova.
+Xamarin::Platform lintas platform .NET untuk Android/iOS (kini digantikan .NET MAUI).
+Tauri::Framework aplikasi desktop ringan dengan backend Rust dan UI web; alternatif Electron yang lebih kecil.
+NW.js::Runtime untuk membuat aplikasi desktop dengan HTML/JS (dulu node-webkit), mirip Electron.
+Expo::Platform dan toolchain di atas React Native untuk membangun dan merilis aplikasi lebih mudah.
+Unreal Engine::Game engine kelas AAA dari Epic Games (C++ dan Blueprints) dengan grafis fotorealistik.
+Blender::Software 3D open-source: modeling, animasi, rendering, dan editing video.
+GIMP::Editor gambar raster open-source, alternatif Photoshop.
+Inkscape::Editor grafis vektor open-source (SVG), alternatif Illustrator.
+Adobe Photoshop::Editor gambar raster standar industri untuk foto dan desain (berlangganan).
+Adobe Illustrator::Editor grafis vektor Adobe untuk logo dan ilustrasi.
+Canva::Alat desain online berbasis template untuk poster, presentasi, dan media sosial.
+Miro::Papan tulis kolaboratif online untuk brainstorming, diagram, dan workshop.
+Lucidchart::Alat diagram online (flowchart, ERD, arsitektur) dengan kolaborasi real-time.
+Draw.io::Alat diagram gratis (diagrams.net) yang bisa disimpan ke Drive, GitHub, atau lokal.
+Excalidraw::Papan tulis virtual open-source bergaya sketsa tangan untuk diagram cepat.
+PlantUML::Membuat diagram UML dan arsitektur dari teks.
+Swagger::Ekosistem alat OpenAPI: Swagger UI untuk dokumentasi API interaktif dan Swagger Editor.
+AsyncAPI::Spesifikasi untuk mendokumentasikan API berbasis event (Kafka, MQTT, WebSocket), seperti OpenAPI untuk dunia asinkron.
+Postman MockServers::Fitur Postman untuk membuat server tiruan yang mengembalikan respons contoh sebelum backend siap.
+Stoplight::Platform desain dan dokumentasi API berbasis OpenAPI (Stoplight Studio, Prism mock server).
+Apiary::Platform desain dan dokumentasi API (API Blueprint) milik Oracle yang mendukung mock server.
+SoapUI::Alat uji API SOAP dan REST dari SmartBear.
+JMeter::Apache JMeter: alat load/performance test berbasis Java untuk web dan API.
+Gatling::Alat load testing berbasis kode (Scala/Java/Kotlin) dengan laporan yang detail.
+Locust::Alat load testing Python: skenario ditulis sebagai kode Python dan bisa terdistribusi.
+Artillery::Alat load testing Node.js dengan skenario YAML untuk HTTP, WebSocket, dan lainnya.
+k6::Alat load testing modern (milik Grafana) dengan skrip JavaScript.
+Apache Bench::ab: alat sederhana untuk benchmark server HTTP (jumlah request dan konkurensi) dari Apache.
+Lighthouse::Alat audit otomatis Google untuk performa, aksesibilitas, SEO, dan PWA (tersedia di Chrome DevTools).
+WebPageTest::Alat uji kecepatan situs dari berbagai lokasi dan perangkat dengan diagram waterfall yang detail.
+Pingdom::Layanan monitoring uptime dan kecepatan situs (SolarWinds).
+GTmetrix::Layanan analisis kecepatan situs berbasis Lighthouse dengan riwayat dan pilihan lokasi uji.
+New Relic::Platform observability (APM, log, metrik, tracing) untuk memantau aplikasi.
+Dynatrace::Platform observability dan APM berbasis AI dengan deteksi akar masalah otomatis.
+AppDynamics::Platform APM (milik Cisco) untuk memantau performa aplikasi enterprise.
+LogRocket::Alat session replay dan monitoring frontend untuk melihat bug seperti yang dialami pengguna.
+FullStory::Platform analitik pengalaman digital dengan session replay dan heatmap.
+Mixpanel::Platform analitik produk berbasis event untuk funnel dan retensi pengguna.
+Amplitude::Platform analitik produk untuk perilaku pengguna, funnel, dan retensi.
+Google Analytics::Layanan analitik web/aplikasi Google (GA4 berbasis event) untuk melacak pengunjung.
+Matomo::Platform analitik web open-source yang bisa di-host sendiri dengan fokus privasi, alternatif Google Analytics.
+Plausible Analytics::Analitik web ringan tanpa cookie, ramah privasi, dan open-source.
+Fathom Analytics::Analitik web sederhana dan ramah privasi tanpa cookie (berbayar).
+Segment::Customer data platform (Twilio) untuk mengumpulkan event sekali lalu mengirimnya ke banyak alat.
+RudderStack::Customer data platform open-source berpusat pada warehouse, alternatif Segment.
+PayPal SDK::SDK PayPal untuk menerima pembayaran (tombol Checkout, REST API) di web dan mobile.
+Braintree::Gateway pembayaran milik PayPal untuk kartu, PayPal, dan dompet digital.
+Razorpay::Gateway pembayaran populer di India (UPI, kartu, netbanking).
+Adyen::Platform pembayaran global untuk online dan toko fisik dalam satu sistem.
+Shopify API::API untuk membangun aplikasi, tema, dan integrasi toko Shopify (REST dan GraphQL Admin API).
+WooCommerce API::REST API plugin WooCommerce (WordPress) untuk mengelola produk, pesanan, dan pelanggan.
+Magento::Platform e-commerce open-source (PHP), kini bernama Adobe Commerce, untuk toko berskala besar.
+Salesforce Commerce Cloud::Platform e-commerce cloud enterprise dari Salesforce.
+Strapi::Headless CMS open-source berbasis Node.js dengan API REST/GraphQL otomatis.
+Contentful::Headless CMS cloud berbasis API untuk konten terstruktur lintas kanal.
+Sanity.io::Headless CMS dengan editor Sanity Studio yang bisa dikustomisasi dan bahasa kueri GROQ.
+Ghost CMS::Platform blog dan newsletter open-source berbasis Node.js.
+Drupal::CMS open-source (PHP) yang kuat dan fleksibel untuk situs kompleks dan skala besar.
+Joomla::CMS open-source (PHP) yang posisinya di antara WordPress dan Drupal.
+Hugo::Static site generator (Go) yang sangat cepat.
+Gatsby::Framework React untuk situs statis dengan data GraphQL; pengembangannya melambat sejak diakuisisi Netlify.
+Jekyll::Static site generator Ruby yang dipakai GitHub Pages dengan Markdown dan Liquid.
+Eleventy::Static site generator JavaScript yang sederhana dan fleksibel (11ty).
+Astro::Framework web untuk situs berbasis konten dengan islands architecture yang mengirim sedikit JavaScript.
+Qwik::Framework web yang berfokus pada resumability agar aplikasi langsung interaktif dengan JavaScript minimal.
+SolidJS::Library UI reaktif berperforma tinggi dengan reaktivitas halus tanpa virtual DOM.
+Alpine.js::Framework JavaScript ringan untuk interaktivitas langsung di HTML lewat atribut (x-data).
+HTMX::Library yang memberi HTML kemampuan AJAX dan interaksi lewat atribut (hx-get) tanpa banyak JavaScript.
+Lit::Library kecil dari Google untuk membuat Web Components yang cepat.
+Stencil::Compiler Web Components dari tim Ionic.
+Web Components::Standar browser (Custom Elements, Shadow DOM, HTML Templates) untuk komponen yang bisa dipakai ulang.
+Shadow DOM::Bagian Web Components yang mengisolasi DOM dan CSS komponen dari halaman di luarnya.
+Service Workers::Skrip latar belakang di browser untuk caching, mode offline, dan push notification (dasar PWA).
+WebRTC::Standar komunikasi real-time peer-to-peer di browser untuk video, audio, dan data.
+Server-Sent Events::Aliran data satu arah dari server ke browser lewat HTTP (EventSource); dasar streaming respons AI.
+Protocol Buffers::Format serialisasi biner efisien dari Google dengan skema .proto; dipakai gRPC.
+Thrift::Framework RPC dan serialisasi lintas bahasa (dari Facebook, kini proyek Apache).
+Avro::Format serialisasi data Apache dengan skema, populer di Kafka dan Hadoop.
+MessagePack::Format serialisasi biner yang lebih kecil dan cepat daripada JSON.
+BSON::Format biner mirip JSON yang dipakai MongoDB dengan tipe data tambahan.
+CBOR::Concise Binary Object Representation: format biner mirip JSON untuk perangkat IoT.
+ASN.1::Notasi untuk mendefinisikan struktur data, dipakai di sertifikat X.509, LDAP, dan telekomunikasi.
+JSON-RPC::Protokol RPC ringan yang mengirim panggilan fungsi sebagai JSON.
+XML-RPC::Protokol RPC sederhana yang mengirim panggilan fungsi sebagai XML lewat HTTP.
+SOAP::Protokol layanan web berbasis XML yang formal dan lebih kaku daripada REST.
+WSDL::Dokumen XML yang menjelaskan layanan web SOAP: operasi, pesan, dan endpoint.
+UDDI::Standar lama untuk direktori/registrasi layanan web; sebagian besar sudah ditinggalkan.
+SAML::Standar berbasis XML untuk SSO enterprise antara penyedia identitas (IdP) dan layanan (SP).
+LDAP::Protokol akses direktori untuk menyimpan dan mencari data pengguna dan organisasi; dasar Active Directory.
+Active Directory::Layanan direktori Microsoft untuk mengelola pengguna, komputer, dan hak akses di jaringan Windows.
+Kerberos::Protokol autentikasi jaringan berbasis tiket yang tidak mengirim password; dipakai Active Directory.
+RADIUS::Protokol AAA (autentikasi, otorisasi, accounting) untuk akses jaringan seperti Wi-Fi enterprise dan VPN.
+TACACS+::Protokol AAA dari Cisco untuk mengontrol akses administrator ke perangkat jaringan.
+SSO::SSO: sekali login untuk mengakses banyak aplikasi (lewat SAML atau OpenID Connect).
+MFA::MFA: verifikasi dengan lebih dari satu faktor (password + kode OTP/perangkat/biometrik) agar akun lebih aman.
+Biometric Auth::Autentikasi dengan ciri tubuh seperti sidik jari atau wajah, biasanya sebagai faktor tambahan.
+WebAuthn::Standar W3C untuk login tanpa password lewat kunci kriptografi publik di browser (perangkat atau biometrik).
+FIDO2::Standar autentikasi kuat tanpa password dari FIDO Alliance (WebAuthn + CTAP).
+Passkeys::Pengganti password berbasis FIDO2: kunci kriptografi yang disimpan di perangkat dan dibuka dengan biometrik atau PIN.
+YubiKey::Kunci keamanan fisik (Yubico) untuk MFA dan FIDO2/WebAuthn.
+Google Authenticator::Aplikasi pembuat kode OTP (TOTP) 6 digit untuk verifikasi dua langkah.
+Authy::Aplikasi autentikator 2FA (Twilio) dengan backup terenkripsi lintas perangkat.
+1Password::Pengelola password komersial dengan vault terenkripsi dan berbagi tim.
+LastPass::Pengelola password berbasis cloud dengan vault terenkripsi.
+Bitwarden::Pengelola password open-source yang bisa di-host sendiri.
+KeePass::Pengelola password open-source offline dengan database terenkripsi (.kdbx).
+HashiCorp Vault::Penyimpanan dan manajemen rahasia (secret) dengan kontrol akses, rotasi, dan audit.
+AWS Secrets Manager::Layanan AWS untuk menyimpan dan merotasi rahasia seperti password database dan API key.
+GCP Secret Manager::Layanan Google Cloud untuk menyimpan rahasia dengan versi dan kontrol akses IAM.
+Azure Key Vault::Layanan Azure untuk menyimpan kunci, rahasia, dan sertifikat dengan aman.
+Doppler::Platform manajemen secret dan environment variable terpusat untuk tim.
+Infisical::Platform manajemen secret open-source untuk sinkronisasi environment variable lintas lingkungan.
+Checkmarx::Platform pengujian keamanan aplikasi (SAST/SCA) yang memindai kerentanan di kode.
+Veracode::Platform keamanan aplikasi (SAST, DAST, SCA) berbasis cloud.
+Fortify::Solusi keamanan aplikasi (OpenText Fortify) dengan analisis statis dan dinamis.
+Burp Suite::Toolkit pengujian keamanan aplikasi web (PortSwigger): proxy intersepsi, scanner, dan repeater.
+OWASP ZAP::Scanner keamanan aplikasi web open-source gratis dari OWASP.
+Metasploit::Framework penetration testing untuk menguji kerentanan secara legal dan terotorisasi.
+Nessus::Scanner kerentanan jaringan (Tenable) untuk menemukan celah di sistem.
+Qualys::Platform cloud untuk manajemen kerentanan dan kepatuhan.
+Tripwire::Alat integritas file/konfigurasi yang mendeteksi perubahan tidak sah.
+Snort::IDS/IPS jaringan open-source (Cisco) yang mendeteksi serangan lewat aturan.
+Suricata::Mesin IDS/IPS dan pemantau jaringan open-source berkinerja tinggi.
+Zeek::Platform analisis lalu lintas jaringan open-source (dulu Bro) yang menghasilkan log aktivitas yang detail.
+Splunk::Platform pencarian, analisis, dan monitoring log/data mesin (SIEM), kini bagian dari Cisco.
+Logstash::Pipeline pemrosesan log di ELK Stack: mengumpulkan, mengubah, dan mengirim data ke Elasticsearch.
+Kibana::Antarmuka visualisasi dan dashboard untuk data di Elasticsearch (bagian ELK Stack).
+ELK Stack::Elasticsearch + Logstash + Kibana: kumpulan alat untuk mengumpulkan, mencari, dan memvisualisasikan log.
+Fluentd::Pengumpul data/log open-source (CNCF) dengan banyak plugin.
+Graylog::Platform manajemen log terpusat berbasis OpenSearch/Elasticsearch.
+Loki::Sistem agregasi log dari Grafana yang mengindeks label, bukan seluruh isi log, sehingga hemat.
+Tempo::Backend distributed tracing dari Grafana yang hemat biaya.
+OpenTelemetry::Standar dan SDK open-source (CNCF) untuk mengumpulkan trace, metrik, dan log dengan satu cara.
+Jaeger::Platform distributed tracing open-source (CNCF) untuk melacak permintaan antar microservice.
+Zipkin::Sistem distributed tracing open-source untuk menganalisis latensi di arsitektur microservice.
+AppOptics::Layanan monitoring dan APM (SolarWinds) untuk infrastruktur dan aplikasi.
+CloudWatch::Layanan monitoring AWS untuk metrik, log, alarm, dan dashboard.
+Stackdriver::Nama lama suite monitoring Google Cloud (kini Cloud Monitoring dan Cloud Logging).
+Azure Monitor::Layanan monitoring Microsoft Azure untuk metrik, log, dan peringatan.
+GraphQL Schema::Definisi tipe data dan operasi (Query, Mutation, Subscription) API GraphQL dalam bahasa SDL yang kuat tipe.
+Postgres CLI::psql: klien baris perintah PostgreSQL untuk menjalankan SQL, menjelajahi tabel, dan mengimpor data.
+Redis CLI::redis-cli: klien baris perintah Redis untuk menjalankan perintah seperti SET dan GET serta memantau server.
+Tailwind CSS CLI::Alat baris perintah untuk membangun CSS Tailwind (npx tailwindcss -i input.css -o output.css --watch) tanpa bundler.
+Trello::Papan Kanban visual (Atlassian) dengan kartu dan daftar untuk mengatur tugas tim secara sederhana.`.split("\n").forEach((l) => { const [k, v] = l.split("::"); DET[kk(k)] = v; });
+const TECH = {};
+CATS.forEach((c, ci) => c[3].split(";").forEach((e) => {
+  const [nm, ...al] = e.split("|"); const ent = { nm, ci, key: kk(nm) };
+  [nm, ...al].forEach((a) => { TECH[kk(a)] = ent; });
+}));
+const AMBIG = new Set("angular clerk jest mercurial lighthouse oracle spring apache cargo rails julia ruby swift rust go r c d ada mix hex nix elm odin zig lit bun black loki tempo hive ghost cursor render railway fly teams unity foundation emotion express recoil scratch prefect expo ab md fetch segment fathom vault".split(" "));
+const INDO = new Set("ada tempo lit ab md d r c mix hex render segment black foundation emotion fly".split(" "));
+const ASK_PREV = new Set("itu sih jelaskan bahasa language tool framework library is tentang".split(" "));
+// ask: 0 = tanpa kata tanya, 1 = kata tanya lemah (cara, belajar…), 2 = kata tanya kuat (apa itu, jelaskan…)
+function techFind(raw, ask, cmp) {
+  const low = raw.toLowerCase();
+  const tk = (low.match(/[a-z0-9.+#]+/g) || []).map((x) => x.replace(/^\.+|\.+$/g, "")).filter(Boolean);
+  const out = [];
+  for (let i = 0; i < tk.length;) {
+    let hit = null, hn = 1;
+    for (let n = 3; n >= 1 && !hit; n--) {
+      if (i + n > tk.length) continue;
+      const key = kk(tk.slice(i, i + n).join("")), e = TECH[key];
+      if (!e) continue;
+      const amb = AMBIG.has(key);
+      if (!(amb ? ask >= 2 : (ask >= 1 || key.length > 1))) continue;
+      if (cmp && n === 1 && INDO.has(key)) continue;
+      if (n === 1 && INDO.has(key) && !ASK_PREV.has(tk[i - 1] || "") && !(cmp && ask >= 2)) continue;
+      hit = e; hn = n;
+    }
+    if (hit) { if (!out.includes(hit)) out.push(hit); i += hn; } else i++;
+  }
+  return out;
+}
+function techCard(e) {
+  const c = CATS[e.ci], names = c[3].split(";").map((x) => x.split("|")[0]), i = names.indexOf(e.nm);
+  const sib = [];
+  for (let k = 1; k < names.length && sib.length < 4; k++) sib.push(names[(i + k) % names.length]);
+  return `🛠️ ${e.nm} — ${c[0]}\n` + (DET[e.key] || `${c[2]} Saya belum punya penjelasan rinci tentang ${e.nm}; tanyakan "${c[0].toLowerCase()} apa saja" untuk melihat alat sekategori.`) + (sib.length ? `\n\n📚 Sekategori: ${sib.join(", ")}` : "");
+}
+function techCompare(raw) {
+  if (!/\b(vs|versus|beda|bedanya|perbedaan|banding|bandingkan|perbandingan|dibanding|lebih baik|mana yang)\b/.test(raw.toLowerCase())) return null;
+  const found = techFind(raw, 2, true).slice(0, 4);
+  if (found.length < 2) return null;
+  return "⚖️ Perbandingan " + found.map((e) => e.nm).join(" vs ") + "\n" +
+    found.map((e) => "• " + e.nm + " (" + CATS[e.ci][0] + "): " + (DET[e.key] || CATS[e.ci][2])).join("\n") +
+    "\n\nPilih sesuai kebutuhan proyek, tim, dan ekosistem; tidak ada yang unggul mutlak di semua kasus.";
+}
+function techAnswer(raw) {
+  const low = raw.toLowerCase();
+  const strong = /apa itu|apa sih|jelaskan|what is|fungsi|kegunaan|untuk apa|bahasa|language|framework|library|tool/.test(low);
+  const weak = /tentang|belajar|cara|tutorial|install|pakai/.test(low);
+  const f = techFind(raw, strong ? 2 : weak ? 1 : 0);
+  return f.length ? techCard(f[0]) : null;
+}
+function techList(low) {
+  if (!/apa saja|daftar|list|sebutkan|macam|jenis|contoh|rekomendasi/.test(low)) return null;
+  for (const c of CATS) if (c[1].test(low)) return `📚 ${c[0]} (${c[3].split(";").length}):\n` + c[3].split(";").map((e) => e.split("|")[0]).join(", ");
+  return null;
+}
+
+/* ================= Ibu kota ================= */
+function capital(t) {
+  if (!has(t, "ibukota", "ibu kota", "capital")) return null;
+  const names = Object.keys(CAP).concat(Object.keys(ALIAS)).sort((a, b) => b.length - a.length);
+  for (const n of names) if (t.includes(" " + n + " ")) {
+    const c = ALIAS[n] || n;
+    return `Ibu kota ${c.replace(/\b\w/g, (x) => x.toUpperCase())} adalah ${CAP[c]}. 🌍`;
+  }
+  for (const [k, v] of Object.entries(CAP)) { const vn = norm(v); if (t.includes(vn) || t.includes(vn.replace(/ d c $/, " ")))
+    return `${v} adalah ibu kota ${k.replace(/\b\w/g, (x) => x.toUpperCase())}.`; }
+  return "Sebutkan negaranya ya, misalnya \"ibu kota Jepang\". Saya mengenal ±65 negara.";
+}
+
+/* ================= Analisis foto (lokal, via canvas) ================= */
+let photos = [];       // semua foto di sesi ini (konteks pertanyaan lanjutan)
+let pending = [];      // foto yang menunggu dikirim
+const COLORS = (r, g, b) => {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0;
+  if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360;
+  if (l < 0.12) return "hitam";
+  if (l > 0.9 && s < 0.25) return "putih";
+  if (s < 0.15) return l < 0.35 ? "abu-abu tua" : "abu-abu";
+  if (h < 15 || h >= 345) return "merah";
+  if (h < 40) return l < 0.38 ? "coklat" : "oranye";
+  if (h < 65) return "kuning";
+  if (h < 160) return "hijau";
+  if (h < 200) return "tosca";
+  if (h < 255) return "biru";
+  if (h < 290) return "ungu";
+  return "pink";
+};
+function guess(f) {
+  const g = [];
+  if (f.lum < 45) g.push("adegan gelap atau malam hari");
+  else if (f.lum < 110 && f.ed > 0.07 && f.skin < 0.05 && f.all.green < 0.2) g.push("screenshot terminal/editor kode bertema gelap, atau poster gelap");
+  if (f.all.white > 0.55 && f.ed > 0.08) g.push("dokumen, teks, atau screenshot terang");
+  else if (f.all.white > 0.6 && f.ed < 0.06) g.push("area putih luas (salju, kabut, atau latar polos)");
+  if (f.top.blue > 0.3 && f.bot.green + f.bot.brown > 0.3) g.push("pemandangan alam: langit di atas, pepohonan/tanah di bawah");
+  else if (f.top.blue > 0.25 && f.bot.blue > 0.3) g.push("laut, danau, atau langit biru luas");
+  if (f.top.warm > 0.35 && f.ed >= 0.02) g.push("langit senja/matahari terbit atau suasana hangat");
+  if (f.all.green > 0.4) g.push("banyak tumbuhan atau warna hijau");
+  if (f.skin > 0.18) g.push("kemungkinan ada orang atau kulit (potret/close-up)");
+  if (f.ed < 0.02) g.push("gambar polos atau gradasi, mungkin ilustrasi sederhana");
+  return g.length ? g.slice(0, 3) : ["adegan umum tanpa pola warna khas"];
+}
+const gtxt = (p) => "tebakan: " + p.guess.join("; ") + (p.faces > 0 ? `; ${p.faces} wajah terdeteksi` : "") + (p.codes.length ? "; kode QR/barcode: " + p.codes.join(", ") : "");
+function analyze(file) {
+  return new Promise((resolve) => {
+    let wd = null, url = null, settled = false;
+    const res = (v) => { if (settled) return; settled = true; clearTimeout(wd); resolve(v); };
+    wd = setTimeout(() => { if (url) { try { URL.revokeObjectURL(url); } catch (e) {} } res(null); }, 20000);
+    // Batas ini mencegah file non-gambar dan gambar ekstrem menghabiskan memori.
+    if (!file || (file.type && !/^image\/(jpeg|png|webp|gif|bmp|avif)$/i.test(file.type))) return res(null);
+    if (file.size > 20 * 1024 * 1024) return res(null);
+    url = URL.createObjectURL(file); const img = new Image();
+    img.onload = async () => {
+      try {
+      const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+      if (!w0 || !h0 || w0 * h0 > 40000000) { URL.revokeObjectURL(url); return res(null); }
+      const c = document.createElement("canvas"), n = 48;
+      c.width = c.height = n;
+      const x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0, n, n);
+      const d = x.getImageData(0, 0, n, n).data, cnt = {}, T = {}, B = {}, lm = new Float32Array(n * n);
+      let skin = 0;
+      let lum = 0, used = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 128) continue; used++;
+        lum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        const k = COLORS(d[i], d[i + 1], d[i + 2]);
+        cnt[k] = (cnt[k] || 0) + 1;
+        const px = i >> 2, row = (px / n) | 0;
+        lm[px] = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        if (row < n / 3) T[k] = (T[k] || 0) + 1; else if (row >= (2 * n) / 3) B[k] = (B[k] || 0) + 1;
+        const mx = Math.max(d[i], d[i + 1], d[i + 2]), mn = Math.min(d[i], d[i + 1], d[i + 2]), sat = mx ? (mx - mn) / mx : 0;
+        if (d[i] === mx && d[i + 1] >= d[i + 2] && sat >= 0.15 && sat <= 0.6 && mx > 90 && (d[i + 1] - d[i + 2]) / (mx - mn) <= 0.83) skin++;
+      }
+      if (!used) { lum = 255; cnt.putih = 1; } else lum /= used;
+      let ed = 0;
+      for (let yy = 0; yy < n - 1; yy++) for (let xx = 0; xx < n - 1; xx++) { const j = yy * n + xx; if (Math.abs(lm[j] - lm[j + 1]) > 35 || Math.abs(lm[j] - lm[j + n]) > 35) ed++; }
+      ed /= (n - 1) * (n - 1);
+      const tp = (n * n) / 3, fr = (o, ks, den) => ks.reduce((a, k) => a + (o[k] || 0), 0) / den, u = used || 1;
+      const g = guess({ lum, ed, skin: skin / u, dark: (cnt.hitam || 0) / u,
+        top: { blue: fr(T, ["biru", "tosca"], tp), warm: fr(T, ["oranye", "merah", "kuning", "pink"], tp) },
+        bot: { green: fr(B, ["hijau"], tp), brown: fr(B, ["coklat"], tp), blue: fr(B, ["biru", "tosca"], tp) },
+        all: { green: (cnt.hijau || 0) / u, white: ((cnt.putih || 0) + (cnt["abu-abu"] || 0)) / u } });
+      const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
+      const w = img.naturalWidth || img.width || 300, h = img.naturalHeight || img.height || 300;
+      let faces = -1, codes = [];
+      try { if (window.FaceDetector) faces = (await Promise.race([new FaceDetector().detect(img), sleep(2000).then(() => [])])).length; } catch (e) {}
+      try { if (window.BarcodeDetector) codes = (await Promise.race([new BarcodeDetector().detect(img), sleep(2000).then(() => [])])).map((b) => b.rawValue).filter(Boolean); } catch (e) {}
+      res({ faces, codes, guess: g, name: String(file.name || "foto").slice(0, 180), url, w, h, kb: Math.round(file.size / 1024), type: file.type.replace("image/", "").toUpperCase(), lum, top,
+        orient: Math.abs(w - h) / Math.max(w, h) < 0.05 ? "persegi" : w > h ? "lanskap" : "potret" });
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        res(null);
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
+const light = (l) => (l < 85 ? "gelap" : l < 170 ? "sedang" : "terang");
+const label = (p, i) => `Foto ${i + 1}${p.name ? " (" + p.name.slice(0, 22) + ")" : ""}`;
+
+function photoAnswer(t, fresh) {
+  if (/\b(hapus|bersihkan|reset)\b.*\b(foto|gambar)\b/.test(t)) {
+    const n = photos.length + pending.length;
+    for (const p of new Set([...photos, ...pending])) { try { URL.revokeObjectURL(p.url); } catch (e) {} }
+    photos = []; pending = []; renderTray();
+    return n ? "Semua foto di sesi ini sudah dihapus. 🧹" : "Belum ada foto untuk dihapus.";
+  }
+  if (!photos.length) return "Belum ada foto. Tekan 📷 untuk menambahkan satu atau banyak foto, lalu tanyakan sesuatu.";
+  let idx = photos.map((_, i) => i);
+  const sel = t.match(/(?:foto|gambar) (?:ke )?(\d+)/);
+  if (sel && photos[+sel[1] - 1]) idx = [+sel[1] - 1];
+  else if (fresh.length) idx = fresh;
+  const L = idx.map((i) => [photos[i], i]);
+  const lines = (f) => L.map(([p, i]) => `• ${label(p, i)}: ${f(p)}`).join("\n");
+
+  if (/berapa (foto|gambar)|jumlah (foto|gambar)/.test(t)) return `Ada ${photos.length} foto di sesi ini.`;
+  if (/bandingkan|perbandingan|\bbeda\b|perbedaan|mirip|\bsama\b|terbesar|terkecil/.test(t)) {
+    if (photos.length < 2) return "Tambahkan minimal 2 foto untuk dibandingkan.";
+    const by = (f, max = true) => photos.reduce((a, b, i) => ((max ? f(b) > f(photos[a]) : f(b) < f(photos[a])) ? i : a), 0);
+    const r = by((p) => p.w * p.h), k = by((p) => p.kb), sameColor = photos.every((p) => p.top[0] === photos[0].top[0]);
+    return `Perbandingan ${photos.length} foto:\n• Resolusi tertinggi: Foto ${r + 1} (${photos[r].w}×${photos[r].h})\n• Ukuran file terbesar: Foto ${k + 1} (${photos[k].kb} KB)\n• Paling terang: Foto ${by((p) => p.lum) + 1}; paling gelap: Foto ${by((p) => p.lum, false) + 1}\n• Warna dominan: ${sameColor ? "semuanya dominan " + photos[0].top[0] : photos.map((p, i) => `F${i + 1} ${p.top[0]}`).join(", ")}`;
+  }
+  if (/ukuran|resolusi|dimensi|piksel|pixel|\bkb\b|format|seberapa besar/.test(t)) return "📐 Detail foto:\n" + lines((p) => `${p.w}×${p.h} px, ${p.orient}, ${p.kb} KB, ${p.type}`);
+  if (/warna|colou?r/.test(t)) return "🎨 Warna dominan:\n" + lines((p) => p.top.join(" dan "));
+  if (/terang|gelap|cerah|pencahayaan|kecerahan/.test(t)) return "💡 Kecerahan:\n" + lines((p) => `${light(p.lum)} (${Math.round(p.lum / 2.55)}%)`);
+  if (/\bapa\b|objek|\bisi|siapa|jelaskan|deskripsi|gambarkan|benda|hewan|orang|lihat/.test(t))
+    return "Pengenalan saya heuristik (pola warna, tepi, dan detektor wajah/QR bawaan browser bila ada), bukan pengenal objek sungguhan, jadi anggap ini tebakan:\n" + lines((p) => `${p.orient} ${p.w}×${p.h}, warna ${p.top.join(" & ")}, ${light(p.lum)}; ${gtxt(p)}`) + "\n\nTanya soal ukuran, warna, kecerahan, atau minta perbandingan.";
+  return `📷 Ringkasan ${L.length} foto:\n` + lines((p) => `${p.orient} ${p.w}×${p.h}, ${p.kb} KB, warna ${p.top.join(" & ")}, ${light(p.lum)}; ${gtxt(p)}`);
+}
+
+/* ================= Mesin jawaban ================= */
+let photoCtx = false; // true bila jawaban sebelumnya tentang foto (pertanyaan lanjutan)
+function photoIntent(raw, fresh) {
+  const t = norm(String(raw).slice(0, 500)), tt = t.trim();
+  if (fresh.length) return true;
+  if (!tt) return false;
+  const n = tt.split(" ").length;
+  if (has(t, "foto", "gambar", "image", "picture", "pic", "fotonya", "gambarnya") &&
+      (photos.length > 0 || pending.length > 0 || /(foto|gambar|image|picture) (ini|itu|saya|tadi)|fotonya|gambarnya|analisa|analisis|kenali/.test(tt))) return true;
+  if (photos.length >= 2 && n <= 3 && /bandingkan|perbandingan/.test(t)) return true;
+  return photoCtx && photos.length > 0 && !/pelangi/.test(t) && /bandingkan|perbandingan|resolusi|kecerahan|warna|terang|gelap|cerah|ukuran/.test(t);
+}
+function answer(raw, fresh) {
+  raw = String(raw).slice(0, 500);
+  const t = norm(raw), tt = t.trim();
+  if (!tt && fresh.length) { photoCtx = true; return photoAnswer(t, fresh); }
+  if (!fresh.length) { const tc = techCompare(raw); if (tc) { photoCtx = false; return tc; } }
+  if (photoIntent(raw, fresh)) { photoCtx = true; return photoAnswer(t, fresh); }
+  photoCtx = false;
+
+  const c = calc(raw); if (c) return c;
+  if (has(t, "jam berapa", "waktu sekarang", "jam sekarang", "pukul berapa"))
+    return "Sekarang pukul " + new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " (sesuai jam perangkatmu). ⏰";
+  if (has(t, "tanggal berapa", "hari apa", "tanggal sekarang", "hari ini tanggal", "tanggal hari ini"))
+    return "Hari ini " + new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + ". 📅";
+  const cp = capital(t); if (cp) return cp;
+  const tl = techList(raw.toLowerCase()); if (tl) return tl;
+  const ta = techAnswer(raw); if (ta) return ta;
+
+  for (const [re, a] of SMALL) if (re.test(tt)) return pick(a);
+
+  const words = new Set(tt.split(" "));
+  let best = null, score = 0;
+  for (const f of FACTS) {
+    let s = 0;
+    for (const k of f[0]) { const kw = k.split(" "); if (kw.every((w) => words.has(w))) s = Math.max(s, kw.length); }
+    if (s > score) { score = s; best = f; }
+  }
+  return best ? best[1] : pick(FALLBACK);
+}
+const isClear = (s) => has(norm(s), "hapus riwayat", "bersihkan chat", "clear chat", "hapus chat", "hapus riwayat chat");
+
+/* ================= Mode AI online opsional =================
+   API key hanya disimpan di localStorage jika pengguna mencentang "Ingat API key". */
+const AI_CONFIG_KEY = "nova-ai-config-v1";
+const AI_KEY_STORE = "nova-ai-key-v1";
+let aiKey = "";
+let activeAbort = null;
+const API_PRESETS = {
+  groq: { endpoint: "https://api.groq.com/openai/v1/chat/completions", model: "llama-3.3-70b-versatile", prefer: ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"] },
+  openai: { endpoint: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini", prefer: ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4o"] },
+  deepseek: { endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-chat", prefer: ["deepseek-chat"] },
+  openrouter: { endpoint: "https://openrouter.ai/api/v1/chat/completions", model: "openai/gpt-4o-mini", prefer: [] },
+  together: { endpoint: "https://api.together.xyz/v1/chat/completions", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo", prefer: [] }
+};
+const PRESET_HOSTS = { groq: "api.groq.com", openai: "api.openai.com", deepseek: "api.deepseek.com", openrouter: "openrouter.ai", together: "api.together.xyz" };
+const NON_CHAT = /whisper|tts|playai|orpheus|guard|embed|moderation|dall|image|transcri|speech|rerank/i;
+let aiConfig = { endpoint: API_PRESETS.groq.endpoint, model: API_PRESETS.groq.model, provider: "groq" };
+function endpointOk(provider, endpoint) {
+  try {
+    const u = new URL(endpoint);
+    const local = u.protocol === "http:" && ["localhost", "127.0.0.1"].includes(u.hostname);
+    if (u.protocol !== "https:" && !local) return false;
+    if (u.username || u.password || u.hash) return false;
+    if (PRESET_HOSTS[provider] && u.hostname !== PRESET_HOSTS[provider]) return false;
+    return true;
+  } catch (e) { return false; }
+}
+try {
+  const storedAI = JSON.parse(localStorage.getItem(AI_CONFIG_KEY) || "null");
+  if (storedAI && typeof storedAI === "object") {
+    if (typeof storedAI.provider === "string" && (storedAI.provider === "custom" || API_PRESETS[storedAI.provider])) aiConfig.provider = storedAI.provider;
+    if (typeof storedAI.endpoint === "string" && storedAI.endpoint.length <= 2048 && endpointOk(aiConfig.provider, storedAI.endpoint)) aiConfig.endpoint = storedAI.endpoint;
+    else if (API_PRESETS[aiConfig.provider]) aiConfig.endpoint = API_PRESETS[aiConfig.provider].endpoint;
+    else { aiConfig.provider = "groq"; aiConfig.endpoint = API_PRESETS.groq.endpoint; }
+    if (typeof storedAI.model === "string" && storedAI.model && storedAI.model.length <= 200) aiConfig.model = storedAI.model;
+  }
+} catch (e) {}
+try { const k = sanitizeKey(localStorage.getItem(AI_KEY_STORE)); if (k && !keyProblem(k)) aiKey = k; } catch (e) {}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function sanitizeKey(raw) {
+  let k = String(raw || "").replace(/[\u200B-\u200D\uFEFF\u00A0]/g, "").trim();
+  const q = /^["'`\u201C\u201D\u2018\u2019]+|["'`\u201C\u201D\u2018\u2019]+$/g;
+  k = k.replace(q, "").trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "").replace(q, "").trim();
+  return k;
+}
+function keyProblem(k) {
+  if (!k) return "";
+  if (/\s/.test(k)) return "API key mengandung spasi atau baris baru di tengah. Tempel ulang hanya key-nya.";
+  if (!/^[\x21-\x7E]+$/.test(k)) return "API key mengandung karakter aneh (non-ASCII), kemungkinan salah salin. Tempel ulang dari console penyedia.";
+  if (k.length > 4096) return "API key terlalu panjang.";
+  return "";
+}
+function setStatus(msg, kind) {
+  const el = $("apiTestStatus");
+  el.textContent = msg; el.className = kind || "";
+}
+function persistConfig() { try { localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(aiConfig)); } catch (e) {} }
+function persistKey() {
+  try {
+    if ($("rememberKey").checked && aiKey) localStorage.setItem(AI_KEY_STORE, aiKey);
+    else localStorage.removeItem(AI_KEY_STORE);
+  } catch (e) {}
+}
+function explainHttp(status, msg, model) {
+  const m = String(msg || "").slice(0, 200);
+  if (status === 401) return "API key ditolak (401): key salah, sudah dihapus/kedaluwarsa, atau berasal dari penyedia lain. Buat atau salin ulang key di console penyedia.";
+  if (status === 403) return "Akses ditolak (403): key tidak punya izin, akun/region dibatasi, atau diblokir. " + m;
+  if (status === 404 || (status === 400 && /model/i.test(m))) return "Model \"" + model + "\" tidak tersedia untuk key ini (" + status + "). Klik \"Muat model\" lalu pilih model yang ada. " + m;
+  if (status === 413) return "Permintaan terlalu besar (413). Hapus riwayat chat lalu coba lagi.";
+  if (status === 429) return "Batas pemakaian/kuota tercapai (429). Tunggu sebentar atau pakai model lain. " + m;
+  if (status >= 500) return "Server penyedia sedang bermasalah (" + status + "). Coba lagi beberapa saat lagi.";
+  return "Permintaan gagal (HTTP " + status + "). " + m;
+}
+const PARAM_FIX = {};
+function fixBody(body) {
+  const f = PARAM_FIX[body.model]; if (!f) return body;
+  const nb = { ...body };
+  if (f.noTemp) delete nb.temperature;
+  if (f.mct && "max_tokens" in nb) { nb.max_completion_tokens = nb.max_tokens; delete nb.max_tokens; }
+  return nb;
+}
+async function apiRequest(endpoint, key, body, signal, retry = 1) {
+  body = fixBody(body);
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST", signal,
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+      body: JSON.stringify(body)
+    });
+  } catch (e) {
+    if (e && e.name === "AbortError") throw e;
+    if (retry > 0) { await sleep(700); return apiRequest(endpoint, key, body, signal, retry - 1); }
+    const err = new Error("Tidak bisa terhubung ke server API. Periksa internet/VPN/pemblokir iklan, dan buka file ini lewat Chrome/Edge/Safari biasa (pratinjau atau WebView sering memblokir jaringan). Detail: " + String((e && e.message) || e));
+    err.network = true; throw err;
+  }
+  if (!response.ok) {
+    if (retry > 0 && (response.status === 429 || response.status >= 500)) { await sleep(900); return apiRequest(endpoint, key, body, signal, retry - 1); }
+    let data = {};
+    try { data = await response.json(); } catch (e) {}
+    const msg = (data && data.error && data.error.message) || (data && data.message) || "";
+    if (response.status === 400 && msg) {
+      const f = PARAM_FIX[body.model] || (PARAM_FIX[body.model] = {});
+      let changed = false;
+      if (/max_tokens/i.test(msg) && /max_completion_tokens|unsupported/i.test(msg) && !f.mct && "max_tokens" in body) { f.mct = true; changed = true; }
+      if (/temperature/i.test(msg) && !f.noTemp && "temperature" in body) { f.noTemp = true; changed = true; }
+      if (changed) return apiRequest(endpoint, key, body, signal, retry);
+    }
+    const err = new Error(explainHttp(response.status, msg, body.model));
+    err.status = response.status;
+    err.modelProblem = (response.status === 404 || response.status === 400) && /model/i.test(msg + " " + ((data && data.error && data.error.code) || ""));
+    throw err;
+  }
+  return response;
+}
+function readSettings(skipModel) {
+  const provider = $("apiProvider").value;
+  const endpoint = $("apiEndpoint").value.trim();
+  const model = $("apiModel").value.trim();
+  const key = sanitizeKey($("apiKey").value);
+  let parsed;
+  try { parsed = new URL(endpoint); } catch (e) { throw new Error("Endpoint harus berupa URL yang valid."); }
+  const localHttp = parsed.protocol === "http:" && ["localhost", "127.0.0.1"].includes(parsed.hostname);
+  if (parsed.protocol !== "https:" && !localHttp) throw new Error("Demi keamanan, endpoint harus memakai HTTPS (HTTP hanya untuk localhost).");
+  if (parsed.username || parsed.password || parsed.hash) throw new Error("Endpoint tidak boleh memuat username, password, atau fragmen URL.");
+  if (endpoint.length > 2048 || model.length > 200) throw new Error("Endpoint atau nama model terlalu panjang.");
+  if (!skipModel && !model) throw new Error("Isi nama model terlebih dahulu (atau klik \"Muat model\").");
+  const kp = keyProblem(key); if (kp) throw new Error(kp);
+  if (PRESET_HOSTS[provider] && parsed.hostname !== PRESET_HOSTS[provider]) throw new Error("Endpoint tidak cocok dengan penyedia yang dipilih. Pilih \"Endpoint khusus\" jika memang memakai server lain.");
+  $("apiKey").value = key;
+  const warn = (provider === "groq" && key && !/^gsk_/.test(key)) ? " Catatan: key Groq biasanya diawali gsk_." : "";
+  return { provider, endpoint, model, key, warn };
+}
+async function testConnection(cfg) {
+  const c = new AbortController(); const t = setTimeout(() => c.abort(), 20000);
+  try {
+    const r = await apiRequest(cfg.endpoint, cfg.key, { model: cfg.model, messages: [{ role: "user", content: "Reply with exactly: OK" }], temperature: 0, max_tokens: 64 }, c.signal);
+    const data = await r.json();
+    if (!data || !Array.isArray(data.choices)) throw Object.assign(new Error("Respons tidak cocok dengan format OpenAI Chat Completions."), { status: 0 });
+    const content = data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    return { ok: true, text: typeof content === "string" ? content.trim().slice(0, 60) : "" };
+  } catch (e) {
+    const msg = e.name === "AbortError" ? "Waktu uji habis (20 detik)." : String(e.message || e);
+    return { ok: false, status: e.status || 0, modelProblem: !!e.modelProblem, network: !!e.network, message: msg };
+  } finally { clearTimeout(t); }
+}
+async function fetchModelList(endpoint, key) {
+  const url = endpoint.replace(/\/chat\/completions\/?$/, "/models");
+  if (url === endpoint) throw new Error("Endpoint tidak berakhiran /chat/completions, daftar model tidak bisa dimuat otomatis. Ketik nama model manual.");
+  const c = new AbortController(); const t = setTimeout(() => c.abort(), 15000);
+  try {
+    const r = await fetch(url, { headers: { "Authorization": "Bearer " + key }, signal: c.signal });
+    let data = {};
+    try { data = await r.json(); } catch (e) {}
+    if (!r.ok) throw Object.assign(new Error(explainHttp(r.status, data && data.error && data.error.message, "")), { status: r.status });
+    const ids = (Array.isArray(data.data) ? data.data : [])
+      .filter((m) => m && typeof m.id === "string" && m.active !== false && !NON_CHAT.test(m.id))
+      .map((m) => m.id).sort();
+    if (!ids.length) throw new Error("Daftar model kosong.");
+    return ids;
+  } catch (e) {
+    if (e.name === "AbortError") throw new Error("Waktu memuat model habis (15 detik).");
+    if (e instanceof TypeError) throw new Error("Tidak bisa terhubung ke server API (jaringan/CORS/diblokir).");
+    throw e;
+  } finally { clearTimeout(t); }
+}
+function pickModel(ids, provider) {
+  const prefer = (API_PRESETS[provider] && API_PRESETS[provider].prefer) || [];
+  for (const p of prefer) if (ids.includes(p)) return p;
+  if (provider === "groq") return ids.find((id) => /llama|gpt-oss|qwen|gemma/i.test(id)) || "";
+  return "";
+}
+async function loadModels(silent) {
+  let s;
+  try { s = readSettings(true); } catch (e) { if (!silent) setStatus(e.message, "err"); return; }
+  if (!s.key) { if (!silent) setStatus("Isi API key dulu untuk memuat daftar model.", "err"); return; }
+  const btn = $("loadModels");
+  btn.disabled = true;
+  if (!silent) setStatus("Memuat daftar model…");
+  try {
+    const ids = await fetchModelList(s.endpoint, s.key);
+    const dl = $("modelList"); dl.replaceChildren();
+    ids.forEach((id) => { const o = document.createElement("option"); o.value = id; dl.appendChild(o); });
+    const presetModel = API_PRESETS[s.provider] && API_PRESETS[s.provider].model;
+    if (!ids.includes(s.model)) {
+      const next = (!s.model || s.model === presetModel) ? pickModel(ids, s.provider) : "";
+      if (next) { $("apiModel").value = next; setStatus((s.model ? "Model \"" + s.model + "\" tidak tersedia, diganti ke \"" + next + "\". " : "") + ids.length + " model dimuat.", "ok"); }
+      else setStatus(ids.length + " model dimuat, tetapi \"" + s.model + "\" tidak ada di daftar. Pilih salah satu pada kolom model.", s.model ? "err" : "ok");
+    } else setStatus(ids.length + " model dimuat. Key valid ✅", "ok");
+  } catch (e) {
+    if (!silent) setStatus("Gagal memuat model: " + String(e.message || e), "err");
+  } finally { btn.disabled = false; }
+}
+function updateAIMode() {
+  $("modePill").textContent = aiKey ? "AI online aktif" : "Mode offline";
+  $("modePill").title = aiKey ? aiConfig.provider + " · " + aiConfig.model : "";
+  $("settingsBtn").textContent = aiKey ? "⚙️ AI aktif" : "⚙️ AI Online";
+}
+let lastFocus = null;
+function setInert(on) {
+  document.querySelectorAll("body > :not(#settingsBackdrop):not(script)").forEach((n) => { if (on) n.setAttribute("inert", ""); else n.removeAttribute("inert"); });
+}
+function openAISettings() {
+  lastFocus = document.activeElement;
+  $("apiProvider").value = aiConfig.provider || "custom";
+  $("apiEndpoint").value = aiConfig.endpoint;
+  $("apiModel").value = aiConfig.model;
+  $("apiKey").value = aiKey;
+  let remembered = false;
+  try { remembered = !!localStorage.getItem(AI_KEY_STORE); } catch (e) {}
+  $("rememberKey").checked = remembered;
+  setStatus("");
+  $("settingsBackdrop").classList.add("open");
+  setInert(true);
+  ($("apiKey").value ? $("apiModel") : $("apiKey")).focus();
+}
+function closeAISettings() {
+  if (!$("settingsBackdrop").classList.contains("open")) return;
+  $("settingsBackdrop").classList.remove("open");
+  setInert(false);
+  try { (lastFocus && lastFocus.focus ? lastFocus : $("settingsBtn")).focus(); } catch (e) {}
+}
+$("apiProvider").addEventListener("change", () => {
+  const provider = $("apiProvider").value;
+  $("modelList").replaceChildren();
+  if (provider === "custom") { setStatus("Masukkan endpoint dan model yang sesuai dengan penyedia Anda."); return; }
+  $("apiEndpoint").value = API_PRESETS[provider].endpoint;
+  $("apiModel").value = API_PRESETS[provider].model;
+  setStatus("Preset diisi. Masukkan API key dari penyedia ini lalu klik Simpan & aktifkan.");
+});
+$("apiKey").addEventListener("change", () => { if ($("apiProvider").value !== "custom") loadModels(true); });
+$("settingsBtn").addEventListener("click", openAISettings);
+$("closeSettings").addEventListener("click", closeAISettings);
+$("loadModels").addEventListener("click", () => loadModels(false));
+$("settingsBackdrop").addEventListener("click", (e) => { if (e.target === $("settingsBackdrop")) closeAISettings(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAISettings(); });
+["apiKey", "apiModel", "apiEndpoint"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("saveSettings").click(); } }));
+$("saveSettings").addEventListener("click", async () => {
+  let s;
+  try { s = readSettings(false); } catch (e) { setStatus(e.message, "err"); return; }
+  if (!s.key) {
+    aiConfig = { endpoint: s.endpoint, model: s.model, provider: s.provider };
+    aiKey = ""; persistConfig(); persistKey(); updateAIMode(); closeAISettings();
+    bubble("Kunci API kosong; Nova kembali memakai mode offline.", "bot");
+    return;
+  }
+  const btn = $("saveSettings"); const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Memverifikasi…";
+  setStatus("Memverifikasi API key…");
+  let r;
+  try { r = await testConnection(s); } finally { btn.disabled = false; btn.textContent = label; }
+  if (!r.ok && ([400, 401, 403, 404].includes(r.status) || r.modelProblem)) {
+    setStatus("Belum diaktifkan: " + r.message, "err");
+    if (r.modelProblem) loadModels(false);
+    return;
+  }
+  aiConfig = { endpoint: s.endpoint, model: s.model, provider: s.provider };
+  aiKey = s.key;
+  persistConfig(); persistKey(); updateAIMode(); closeAISettings();
+  bubble(r.ok
+    ? "AI online aktif ✅ (" + s.provider + " · " + s.model + "). Pertanyaan berikutnya akan dijawab oleh model AI."
+    : "AI online diaktifkan, tetapi uji koneksi belum berhasil: " + r.message + " Jika pertanyaan berikutnya gagal, buka ⚙️ lalu klik Uji koneksi.", "bot");
+});
+$("testAPI").addEventListener("click", async () => {
+  let s;
+  try { s = readSettings(false); } catch (e) { setStatus(e.message, "err"); return; }
+  if (!s.key) { setStatus("Isi API key terlebih dahulu.", "err"); return; }
+  const btn = $("testAPI"); btn.disabled = true;
+  setStatus("Menguji koneksi…");
+  const r = await testConnection(s);
+  btn.disabled = false;
+  if (r.ok) setStatus("Berhasil ✅ API merespons" + (r.text ? " (model membalas: " + r.text + ")" : "") + "." + s.warn, "ok");
+  else setStatus("Uji gagal: " + r.message + s.warn, "err");
+});
+$("disableAI").addEventListener("click", () => {
+  aiKey = ""; $("apiKey").value = ""; $("rememberKey").checked = false;
+  try { localStorage.removeItem(AI_KEY_STORE); } catch (e) {}
+  updateAIMode(); closeAISettings();
+  bubble("AI online dimatikan. Kunci API dihapus dari memori halaman dan penyimpanan browser; mode offline tetap siap.", "bot");
+});
+const stripThink = (t) => String(t).replace(/<think>[\s\S]*?(<\/think>|$)/g, "").trim();
+async function askOnlineAI(userText, onDelta, healed) {
+  if (!aiKey) return null;
+  const today = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const messages = [{ role: "system", content: "Kamu adalah asisten AI yang membantu dan teliti. Jawab dalam bahasa yang digunakan pengguna kecuali diminta lain. Untuk soal sulit, uraikan langkah, asumsi, rumus, dan pemeriksaan hasil. Jika informasi tidak pasti atau kamu tidak tahu, katakan terus terang; jangan mengarang fakta, sumber, atau kemampuan. Untuk pertanyaan medis, hukum, keuangan, dan keselamatan, berikan konteks dan batasan yang wajar. Jangan mengklaim dapat melihat foto yang tidak dikirim sebagai data gambar. Tanggal hari ini: " + today + "." }];
+  const context = history.slice(-19);
+  if (context.length && context[context.length - 1].role === "user") context.pop(); // pesan saat ini ditambahkan di bawah
+  while (context.length > 18) context.shift();
+  for (const h of context) {
+    if (!h || typeof h.text !== "string" || !["user", "bot"].includes(h.role)) continue;
+    if (h.role === "bot" && /^⚠️ AI online gagal/.test(h.text)) continue; // jangan racuni konteks dengan pesan error
+    const content = h.text.slice(0, 5000);
+    if (/^\[\d+ foto\]/.test(content)) {
+      messages.push({ role: h.role === "bot" ? "assistant" : "user", content: content + " (Lampiran foto tidak tersedia pada konteks API ini.)" });
+    } else messages.push({ role: h.role === "bot" ? "assistant" : "user", content });
+  }
+  messages.push({ role: "user", content: userText });
+  const controller = new AbortController();
+  activeAbort = controller;
+  let timer = setTimeout(() => controller.abort(), 45000);
+  const bump = () => { clearTimeout(timer); timer = setTimeout(() => controller.abort(), 45000); };
+  try {
+    const response = await apiRequest(aiConfig.endpoint, aiKey, { model: aiConfig.model, messages, temperature: 0.4, stream: true }, controller.signal);
+    const type = response.headers.get("content-type") || "";
+    let full = "";
+    if (response.body && /event-stream/i.test(type)) {
+      const reader = response.body.getReader(); const dec = new TextDecoder(); let buf = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        bump();
+        buf += dec.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, idx).trim(); buf = buf.slice(idx + 1);
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          let j; try { j = JSON.parse(payload); } catch (pe) { continue; }
+          if (j.error) throw new Error((j.error.message || "Kesalahan pada stream respons.").slice(0, 240));
+          const d = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+          if (typeof d === "string" && d) { full += d; if (onDelta) onDelta(stripThink(full).slice(0, 12000)); }
+        }
+      }
+    } else {
+      const data = await response.json();
+      full = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+    }
+    const out = stripThink(full);
+    if (!out) throw new Error("Respons API kosong atau format tidak kompatibel.");
+    return out.slice(0, 12000);
+  } catch (e) {
+    clearTimeout(timer);
+    let next = "";
+    if (e.modelProblem && !healed) {
+      try { next = pickModel(await fetchModelList(aiConfig.endpoint, aiKey), aiConfig.provider); } catch (e2) {}
+      if (next === aiConfig.model) next = "";
+    }
+    if (next) {
+      const old = aiConfig.model; aiConfig.model = next; persistConfig(); updateAIMode();
+      const out = await askOnlineAI(userText, onDelta, true);
+      return out + "\n\n(ℹ️ Model \"" + old + "\" tidak tersedia, otomatis diganti ke \"" + next + "\".)";
+    }
+    throw new Error(e.name === "AbortError" ? "Server tidak merespons dalam 45 detik. Periksa koneksi lalu coba lagi." : String(e.message || e));
+  } finally { clearTimeout(timer); if (activeAbort === controller) activeAbort = null; }
+}
+updateAIMode();
+
+/* ================= UI ================= */
+let history = [];
+let replyQueue = Promise.resolve();
+let conversationGeneration = 0;
+try { history = JSON.parse(localStorage.getItem("nova-history") || "[]"); } catch (e) {}
+if (!Array.isArray(history)) history = [];
+history = history.filter((h) => h && typeof h.text === "string" && (h.role === "user" || h.role === "bot"))
+  .slice(-100).map((h) => ({ role: h.role, text: h.text.slice(0, 5000) }));
+
+function renderRich(el, text) {
+  el.replaceChildren();
+  text = String(text);
+  const inline = (parent, str) => {
+    for (const p of str.split(/(`[^`\n]+`|\*\*[^*\n]+\*\*)/g)) {
+      if (!p) continue;
+      if (p.length > 2 && p[0] === "`" && p.endsWith("`")) { const c = document.createElement("code"); c.textContent = p.slice(1, -1); parent.appendChild(c); }
+      else if (p.length > 4 && p.startsWith("**") && p.endsWith("**")) { const b = document.createElement("strong"); b.textContent = p.slice(2, -2); parent.appendChild(b); }
+      else parent.appendChild(document.createTextNode(p));
+    }
+  };
+  const re = /```([\w+#.-]*)[ \t]*\n?([\s\S]*?)(?:```|$)/g;
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) inline(el, text.slice(last, m.index));
+    const code = m[2].replace(/\n$/, "");
+    const wrap = document.createElement("div"); wrap.className = "codebox";
+    const bar = document.createElement("div"); bar.className = "codebar";
+    const lang = document.createElement("span"); lang.textContent = m[1] || "kode";
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "copy"; btn.textContent = "Salin";
+    btn.onclick = async () => {
+      try { await navigator.clipboard.writeText(code); btn.textContent = "Tersalin ✓"; } catch (e) { btn.textContent = "Gagal menyalin"; }
+      setTimeout(() => { btn.textContent = "Salin"; }, 1500);
+    };
+    bar.append(lang, btn);
+    const pre = document.createElement("pre"), c = document.createElement("code"); c.textContent = code; pre.appendChild(c);
+    wrap.append(bar, pre); el.appendChild(wrap);
+    last = re.lastIndex;
+  }
+  if (last < text.length) inline(el, text.slice(last));
+}
+function bubble(text, who, imgs) {
+  const d = document.createElement("div");
+  d.className = "msg " + who;
+  if (imgs && imgs.length) {
+    const w = document.createElement("div"); w.className = "imgs";
+    imgs.forEach((p) => { const i = document.createElement("img"); i.src = p.url; i.alt = p.name; w.appendChild(i); });
+    d.appendChild(w);
+  }
+  if (text) { if (who === "bot") renderRich(d, text); else d.appendChild(document.createTextNode(text)); }
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+function save(role, text) {
+  history.push({ role, text });
+  history = history.slice(-100);
+  try { localStorage.setItem("nova-history", JSON.stringify(history)); } catch (e) {}
+}
+function resetChat() {
+  conversationGeneration++;
+  if (typeof activeAbort !== "undefined" && activeAbort) { try { activeAbort.abort(); } catch (e) {} }
+  history = [];
+  for (const p of new Set([...photos, ...pending])) { try { URL.revokeObjectURL(p.url); } catch (e) {} }
+  photos = []; pending = []; renderTray();
+  if (synth) synth.cancel();
+  try { localStorage.removeItem("nova-history"); } catch (e) {}
+  chat.replaceChildren();
+  bubble("Riwayat dihapus! 🧹 Mulai obrolan baru.", "bot");
+}
+
+async function send(text, viaVoice) {
+  text = (text || "").trim();
+  if (isClear(text)) { await loadQ; resetChat(); return; }
+  // Batas input menghindari pemakaian memori/API berlebihan.
+  if (text.length > 10000) {
+    bubble("Pesan terlalu panjang (maksimal 10.000 karakter). Ringkas pertanyaan lalu coba lagi.", "bot");
+    return;
+  }
+  await loadQ;
+  const batch = pending.splice(0);
+  renderTray();
+  if (!text && !batch.length) return;
+  const generation = conversationGeneration;
+  bubble(text, "user", batch);
+  const typing = document.createElement("div");
+  typing.className = "msg bot typing"; typing.textContent = "Nova sedang mengetik…";
+  chat.appendChild(typing); chat.scrollTop = chat.scrollHeight;
+
+  // Serialisasi jawaban agar pesan cepat berturut-turut tidak bertabrakan,
+  // urutan konteks percakapan tetap benar, dan hasil lama tidak muncul setelah reset.
+  replyQueue = replyQueue.then(async () => {
+    if (generation !== conversationGeneration) { typing.remove(); return; }
+    save("user", (batch.length ? `[${batch.length} foto] ` : "") + text);
+    const start = photos.length;
+    photos.push(...batch);
+    const fresh = batch.map((_, i) => start + i);
+    let result, liveEl = null;
+    const live = (t) => {
+      if (generation !== conversationGeneration) return;
+      if (!liveEl) { typing.remove(); liveEl = document.createElement("div"); liveEl.className = "msg bot"; liveEl.setAttribute("aria-live", "off"); chat.appendChild(liveEl); }
+      renderRich(liveEl, t); chat.scrollTop = chat.scrollHeight;
+    };
+    try {
+      if (aiKey && text && !photoIntent(text, [])) result = await askOnlineAI(text, live);
+      else result = answer(text, fresh);
+    } catch (err) {
+      if (liveEl) { liveEl.remove(); liveEl = null; }
+      result = "⚠️ AI online gagal: " + String(err.message || err) + "\n\nSaya beralih ke jawaban offline yang terbatas untuk pertanyaan ini: ";
+      result += answer(text, fresh);
+    }
+    if (generation !== conversationGeneration) { typing.remove(); if (liveEl) liveEl.remove(); return; }
+    typing.remove();
+    if (liveEl) { renderRich(liveEl, result); chat.scrollTop = chat.scrollHeight; }
+    else bubble(result, "bot");
+    save("bot", result);
+    if (speakOn || viaVoice) speak(result);
+  }).catch((err) => {
+    typing.remove();
+    if (generation === conversationGeneration) {
+      const message = "Terjadi kesalahan tak terduga saat memproses pesan. Coba lagi.";
+      bubble(message, "bot"); save("bot", message);
+    }
+    console.error("Nova reply queue error:", err);
+  });
+}
+
+$("form").addEventListener("submit", (e) => { e.preventDefault(); const v = input.value; input.value = ""; send(v); });
+
+/* ---- Foto ---- */
+$("photoBtn").onclick = () => $("file").click();
+let loadQ = Promise.resolve();
+$("file").onchange = (e) => {
+  const files = [...e.target.files]; e.target.value = "";
+  loadQ = loadQ.then(async () => {
+    const bad = [];
+    if (files.length > 10) {
+      bubble("Maksimal 10 foto per pilihan agar browser tetap stabil. Pilih ulang hingga 10 foto sekaligus.", "bot");
+      return;
+    }
+    for (const f of files) {
+      if (photos.length + pending.length >= 20) {
+        bad.push("batas sesi 20 foto tercapai");
+        break;
+      }
+      const p = await analyze(f);
+      if (p) pending.push(p); else bad.push(String(f.name || "foto").slice(0, 100));
+    }
+    renderTray();
+    if (bad.length) bubble("Sebagian foto dilewati. Gunakan JPG, PNG, WebP, GIF, BMP, atau AVIF; maksimal 20 foto per sesi, 20 MB per foto, dan resolusi maksimal 40 megapiksel. File: " + bad.join(", "), "bot");
+  }).catch(() => bubble("Foto gagal diproses. Coba file gambar yang lebih kecil atau format JPG/PNG/WebP.", "bot"));
+  input.focus();
+};
+function renderTray() {
+  tray.replaceChildren(); tray.style.display = pending.length ? "flex" : "none";
+  $("photoBtn").classList.toggle("act", pending.length > 0);
+  pending.forEach((p) => {
+    const d = document.createElement("div"); d.className = "th";
+    const im = document.createElement("img"); im.src = p.url; im.alt = p.name;
+    const x = document.createElement("button"); x.type = "button"; x.className = "rm"; x.textContent = "×"; x.title = "Hapus foto"; x.setAttribute("aria-label", "Hapus foto " + p.name);
+    x.onclick = () => { const k = pending.indexOf(p); if (k >= 0) pending.splice(k, 1); try { URL.revokeObjectURL(p.url); } catch (e) {} renderTray(); };
+    d.append(im, x); tray.appendChild(d);
+  });
+}
+
+/* ---- Suara ---- */
+let speakOn = false, voices = [];
+const synth = window.speechSynthesis;
+if (synth) { const lv = () => (voices = synth.getVoices()); lv(); synth.onvoiceschanged = lv; }
+$("spkBtn").onclick = () => {
+  speakOn = !speakOn; $("spkBtn").textContent = speakOn ? "🔊" : "🔇"; $("spkBtn").classList.toggle("act", speakOn);
+  if (!speakOn && synth) synth.cancel();
+};
+function speak(text) {
+  if (!synth) return;
+  synth.cancel();
+  const clean = String(text).replace(/```[\s\S]*?(```|$)/g, " (blok kode dilewati) ").replace(/[`*]/g, "").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F•]/gu, " ");
+  const parts = clean.match(/[^.!?\n]+[.!?\n]*/g) || [clean];
+  const chunks = []; let buf = "";
+  for (const c of parts) { if (buf && (buf + c).length > 180) { chunks.push(buf); buf = c; } else buf += c; }
+  if (buf.trim()) chunks.push(buf);
+  const v = voices.find((x) => /^id/i.test(x.lang));
+  chunks.slice(0, 40).forEach((c) => {
+    if (!c.trim()) return;
+    const u = new SpeechSynthesisUtterance(c.trim());
+    u.lang = "id-ID"; if (v) u.voice = v;
+    synth.speak(u);
+  });
+}
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+$("micBtn").onclick = () => {
+  if (!SR) { bubble("Browser ini belum mendukung pengenalan suara. Coba Chrome atau Edge. Pembacaan jawaban (🔊) tetap bisa dipakai.", "bot"); return; }
+  if (listening) { rec.stop(); return; }
+  if (synth) synth.cancel();
+  rec = new SR(); rec.lang = "id-ID"; rec.interimResults = true; rec.continuous = false;
+  let finalText = "";
+  rec.onstart = () => { listening = true; $("micBtn").classList.add("on"); input.placeholder = "Mendengarkan…"; };
+  rec.onresult = (e) => {
+    let s = ""; for (let k = 0; k < e.results.length; k++) { s += e.results[k][0].transcript; if (e.results[k].isFinal) finalText = s; }
+    input.value = s;
+  };
+  rec.onerror = (e) => {
+    const m = { "not-allowed": "Izin mikrofon ditolak. Aktifkan di pengaturan browser.", "network": "Pengenalan suara butuh koneksi di browser ini. Ketik pertanyaanmu atau coba lagi saat online.", "no-speech": "Tidak ada suara terdengar. Coba lagi." };
+    bubble(m[e.error] || "Mikrofon bermasalah: " + e.error, "bot");
+  };
+  rec.onend = () => {
+    listening = false; $("micBtn").classList.remove("on"); input.placeholder = "Tanya apa saja…";
+    const v = (finalText || input.value).trim(); input.value = "";
+    if (v) send(v, true);
+  };
+  listening = true; $("micBtn").classList.add("on");
+  try { rec.start(); } catch (e) { listening = false; $("micBtn").classList.remove("on"); }
+};
+
+/* ---- Chip & awal ---- */
+["⚙️ Fitur kamu apa?", "Apa itu Docker?", "Database apa saja?", "Ibu kota Jepang?", "15% dari 200", "Planet terbesar?", "Siapa presiden pertama Indonesia?", "💪 Motivasi dong", "🧹 Hapus riwayat"].forEach((q) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = q;
+  b.onclick = () => send(q.replace(/^[^\p{L}\p{N}]+/u, ""));
+  $("chips").appendChild(b);
+});
+if (history.length) {
+  history.forEach((h) => bubble(h.text, h.role));
+  bubble("Selamat datang kembali! 👋 Riwayat teks masih ada (foto tidak disimpan).", "bot");
+} else {
+  bubble("Halo! Saya Nova AI 👋\nTanya pengetahuan umum, hitungan, atau tekan 📷 untuk kirim banyak foto dan 🎤 untuk ngobrol dengan suara.", "bot");
+}
+</script>
+<script>
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
